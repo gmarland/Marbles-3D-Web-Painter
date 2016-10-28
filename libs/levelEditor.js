@@ -1,6 +1,6 @@
 (function () {
     var LevelEditor = function() {
-    	// ----- Internal properties
+    	// ----- Private Properties
 
     	var that = this;
 
@@ -11,6 +11,10 @@
         this._keepRenderingScene = true;
 
     	this._scene = null;
+
+		this._raycaster = null;
+		this._mouse = null;
+
     	this._directionalLight = null;
     	this._camera = null;
 
@@ -19,8 +23,18 @@
         this._skyboxColor = 0xefefef;
         this._skyboxOpacity = 1;
 
+        this._basePlaneWidth = 500;
         this._basePlane = null;
+
         this._baseGrid = null;
+
+        this._positioningCube = null;
+
+        this._voxelSize = 50;
+
+        this._level = 0;
+
+        this.cubes = [];
 
         // -----
 
@@ -31,7 +45,10 @@
             that._containerWidth = document.body.clientWidth;
             that._containerHeight = document.body.clientHeight;
 
-            that._scene = getScene();
+            that._scene = new THREE.Scene();
+
+			that._raycaster = new THREE.Raycaster();
+			that._mouse = new THREE.Vector2();
 
            	that._directionalLight = getDirectionalLight();
             that._scene.add(that._directionalLight);
@@ -45,6 +62,9 @@
 			that._baseGrid = getBaseGrid();
 			that._scene.add(that._baseGrid);
 
+			that._positioningCube = getPositioningVoxel();
+			that._scene.add(that._positioningCube);			
+
 			that._scene.add(that._baseGrid);
 
             that._renderer = getRenderer(that._containerWidth, that._containerHeight, that._skyboxColor, that._skyboxOpacity);
@@ -52,14 +72,10 @@
 
             render();
 
-            bindEvents();
+            bindWindowEvents();
     	}
 
         // -----
-
-    	function getScene() {
-            return new THREE.Scene();
-    	}
 
         function getCamera(containerWidth, containerHeight) {
         	var fov = 75,
@@ -68,7 +84,7 @@
 
             var positionAt = {
             	x: 0,
-            	y: 750,
+            	y: 600,
             	z: 750
             };
 
@@ -108,14 +124,15 @@
         // ----- Methods for creating base plane
 
         function getBasePlane() {
-			var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+			var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth*2, that._basePlaneWidth*2);
 			geometry.rotateX( - Math.PI / 2 );
 
-			return new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+			return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
         }
 
         function getBaseGrid() {
-			var size = 500, step = 50;
+			var size = that._basePlaneWidth, 
+				step = that._voxelSize;
 
 			var geometry = new THREE.Geometry();
 
@@ -130,6 +147,16 @@
 			var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
 
 			return new THREE.LineSegments( geometry, material );
+        }
+
+        function getPositioningVoxel() {
+			var positioningGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
+			var positioningMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
+
+			var positioningMesh = new THREE.Mesh(positioningGeometry, positioningMaterial);
+			positioningMesh.visible = false;
+
+			return positioningMesh;
         }
 
         // -----
@@ -157,7 +184,9 @@
             renderScene();
         };
 
-        function bindEvents() {
+        //----- Mouse binding events
+
+        function bindWindowEvents() {
 			window.addEventListener('resize', function(e) {
 	            that._containerWidth = document.body.clientWidth;
 	            that._containerHeight = document.body.clientHeight;
@@ -167,7 +196,32 @@
 
 				that._renderer.setSize(that._containerWidth, that._containerHeight);
 			}, false );
+
+			document.addEventListener('mousemove', onDocumentMouseMove, false);
         }
+
+
+		function onDocumentMouseMove(event) {
+			event.preventDefault();
+
+			that._mouse.set((event.clientX/window.innerWidth)*2-1, -(event.clientY/window.innerHeight )*2+1);
+
+			that._raycaster.setFromCamera(that._mouse, that._camera);
+
+			var intersects = that._raycaster.intersectObject(that._basePlane);
+
+			if ( intersects.length > 0 ) {
+				that._positioningCube.visible = true;
+
+				var intersect = intersects[0];
+
+				that._positioningCube.position.copy( intersect.point ).add( intersect.face.normal );
+				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
+			}
+			else that._positioningCube.visible = false;
+		}
+
+		//-----
 
         // ----- Public Methods
 
