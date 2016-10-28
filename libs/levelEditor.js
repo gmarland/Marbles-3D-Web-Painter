@@ -29,7 +29,7 @@
 
         this._positioningCube = null;
 
-        this._voxelSize = 50;
+        this._voxelSize = 25;
 
         this._level = 0;
 
@@ -249,7 +249,7 @@
 	        setLevel: function(level) {
 	        	if (level >= 0) {
 	        		that._positioningCube.visible = false;
-	        		
+
 			    	that._basePlane.position.y = (level*that._voxelSize);
 			    	that._baseGrid.position.y = (level*that._voxelSize);
 
