@@ -23,9 +23,8 @@
         this._skyboxColor = 0xefefef;
         this._skyboxOpacity = 1;
 
-        this._basePlaneWidth = 500;
+        this._basePlaneWidth = 1000;
         this._basePlane = null;
-
         this._baseGrid = null;
 
         this._positioningCube = null;
@@ -124,14 +123,14 @@
         // ----- Methods for creating base plane
 
         function getBasePlane() {
-			var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth*2, that._basePlaneWidth*2);
+			var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
 			geometry.rotateX( - Math.PI / 2 );
 
 			return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
         }
 
         function getBaseGrid() {
-			var size = that._basePlaneWidth, 
+			var size = that._basePlaneWidth/2, 
 				step = that._voxelSize;
 
 			var geometry = new THREE.Geometry();
@@ -197,14 +196,16 @@
 				that._renderer.setSize(that._containerWidth, that._containerHeight);
 			}, false );
 
-			document.addEventListener('mousemove', onDocumentMouseMove, false);
+			document.addEventListener('mousemove', repositionPositioningCube, false);
         }
 
 
-		function onDocumentMouseMove(event) {
-			event.preventDefault();
+		function repositionPositioningCube(event) {
+			if (event) {
+				event.preventDefault();
 
-			that._mouse.set((event.clientX/window.innerWidth)*2-1, -(event.clientY/window.innerHeight )*2+1);
+				that._mouse.set((event.clientX/window.innerWidth)*2-1, -(event.clientY/window.innerHeight )*2+1);
+			}
 
 			that._raycaster.setFromCamera(that._mouse, that._camera);
 
@@ -223,22 +224,40 @@
 
 		//-----
 
-        // ----- Public Methods
-
-        LevelEditor.prototype.startRendering = function() {
-            that._keepRenderingScene = true;
-
-            render();
-        };
-
-        LevelEditor.prototype.stopRendering = function() {
-            that._keepRenderingScene = false;
-        };
-
     	return {
     		start: function(container) {
     			init(container);
-    		}
+    		},
+
+
+	        // ----- Public Methods
+
+	        startRendering: function() {
+	            that._keepRenderingScene = true;
+
+	            render();
+	        },
+
+	        stopRendering: function() {
+	            that._keepRenderingScene = false;
+	        },
+
+	        getLevel: function() {
+	        	return that._level;
+	        },
+
+	        setLevel: function(level) {
+	        	if (level >= 0) {
+	        		that._positioningCube.visible = false;
+	        		
+			    	that._basePlane.position.y = (level*that._voxelSize);
+			    	that._baseGrid.position.y = (level*that._voxelSize);
+
+			    	that._level = level;
+			    }
+	        }
+
+			//-----
     	};
     };
 
