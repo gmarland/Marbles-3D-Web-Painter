@@ -61,6 +61,8 @@ THREE.FirstPersonControls = function (scene, camera, domElement) {
 			case 81: /*Q*/ this.rotateLeft = true; break;
 			case 69: /*E*/ this.rotateRight = true; break;
 
+			case 90: /*C*/ this.rotateDown = true; break;
+			case 67: /*Z*/ this.rotateUp = true; break;
 		}
 	};
 
@@ -79,11 +81,10 @@ THREE.FirstPersonControls = function (scene, camera, domElement) {
 			case 70: /*F*/ this.moveDown = false; break;
 
 			case 81: /*Q*/ this.rotateLeft = false; break;
-				this._yawObject.rotation.y += 5 * 0.004;
-				break;
 			case 69: /*E*/ this.rotateRight = false; break;
-				this._yawObject.rotation.y -= 5 * 0.004;
-				break;
+
+			case 90: /*C*/ this.rotateDown = false; break;
+			case 67: /*Z*/ this.rotateUp = false; break;
 
 		}
 	};
@@ -103,9 +104,11 @@ THREE.FirstPersonControls = function (scene, camera, domElement) {
 		if (this.moveUp) this._yawObject.translateY(this._movementSpeed);
 		if (this.moveDown) this._yawObject.translateY(-this._movementSpeed);
 
-		if (this.rotateLeft) this._yawObject.rotation.y += 10 * 0.004;
-		if (this.rotateRight) this._yawObject.rotation.y -= 10 * 0.004;
+		if (this.rotateLeft) this._yawObject.rotation.y += 0.04;
+		if (this.rotateRight) this._yawObject.rotation.y -= 0.04;
 
+		if (this.rotateUp) this._pitchObject.rotation.x -= 0.04;;
+		if (this.rotateDown) this._pitchObject.rotation.x += 0.04;
 	};
 
 	this.dispose = function() {
