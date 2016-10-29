@@ -350,7 +350,6 @@
     			init(container);
     		},
 
-
 	        // ----- Public Methods
 
 	        startRendering: function() {
@@ -376,7 +375,8 @@
 
 			    	that._level = level;
 
-					if (that._isPainting) paint();
+                    if (that._isPainting) paint();
+                    else if (that._isErasing) erase();
 			    }
 	        }
     	};
