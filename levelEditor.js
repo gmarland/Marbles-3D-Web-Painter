@@ -40,15 +40,15 @@
         this._isPainting = false;
         this._isErasing = false;
 
-        this._cubes = [];
+        this._selectedColor = "#000000";
 
-        this._cubeConfigs = [];
+        this._cubes = [];
 
         // -----
 
         // ----- Constructor
 
-    	function init(container) {
+    	var init = function(container) {
             that._clock = new THREE.Clock();
 
 			that._containerElement = document.getElementById(container);
@@ -86,23 +86,23 @@
             render();
 
             bindWindowEvents();
-    	}
+    	};
 
         // -----
 
-        function getCamera(containerWidth, containerHeight) {
+        var getCamera = function(containerWidth, containerHeight) {
         	var fov = 75,
         		aspect = (containerWidth/containerHeight),
         		far = 2000;
 
             return new THREE.PerspectiveCamera(fov, aspect, 0.1, far);
-        }
+        };
 
-       	function getControls(scene, camera, domElement) {
+       	var getControls = function(scene, camera, domElement) {
 			return new THREE.FirstPersonControls(scene, camera, domElement);
-       	}
+       	};
 
-        function getDirectionalLight() {               
+        var getDirectionalLight = function() {               
         	var color = 0xffffff,
         		intensity = 1.0;
 
@@ -116,18 +116,18 @@
             directionalLight.position.set(positionAt.x, positionAt.y, positionAt.z);
 
             return directionalLight;
-        }
+        };
 
         // ----- Methods for creating base plane
 
-        function getBasePlane() {
+        var getBasePlane = function() {
 			var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
 			geometry.rotateX( - Math.PI / 2 );
 
 			return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
-        }
+        };
 
-        function getBaseGrid() {
+        var getBaseGrid = function() {
 			var size = that._basePlaneWidth/2, 
 				step = that._voxelSize;
 
@@ -146,27 +146,27 @@
 			return new THREE.LineSegments( geometry, material );
         }
 
-        function getPositioningVoxel() {
+        var getPositioningVoxel = function() {
 			var positioningGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
-			var positioningMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
+			var positioningMaterial = new THREE.MeshBasicMaterial( { color: new THREE.Color(that._selectedColor), opacity: 0.5, transparent: true } );
 
 			var positioningMesh = new THREE.Mesh(positioningGeometry, positioningMaterial);
 			positioningMesh.visible = false;
 
 			return positioningMesh;
-        }
+        };
 
         // -----
 
-    	function getRenderer(containerWidth, containerHeight, skyboxColor, skyboxOpacity) {
+    	var getRenderer = function(containerWidth, containerHeight, skyboxColor, skyboxOpacity) {
             var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(containerWidth, containerHeight);
             renderer.setClearColor(skyboxColor, skyboxOpacity);
 
             return renderer;
-    	}
+    	};
 
-       	function render() {
+       	var render = function() {
             function updateScene() {
                if (that._controls) that._controls.update(that._clock.getDelta());
             };
@@ -184,7 +184,7 @@
 
         //----- Mouse binding events
 
-        function bindWindowEvents() {
+        var bindWindowEvents = function() {
 			window.addEventListener('resize', function(e) {
 	            that._containerWidth = document.body.clientWidth;
 	            that._containerHeight = document.body.clientHeight;
@@ -200,10 +200,10 @@
 			document.addEventListener('mousedown', mouseDown, false);
 
 			document.addEventListener('mouseup', mouseUp, false);
-        }
+        };
 
 
-		function repositionPositioningCube(event) {
+		var repositionPositioningCube = function(event) {
 			if (event) {
 				event.preventDefault();
 
@@ -226,9 +226,9 @@
                 else if (that._isErasing) erase();
 			}
 			else that._positioningCube.visible = false;
-		}
+		};
 
-		function mouseDown(event) {
+		var mouseDown = function(event) {
             event.preventDefault();
 
             if (getIsLeftMouseButton(event)) {
@@ -243,38 +243,38 @@
             }
 
             return false;
-		}
+		};
 
-		function mouseUp(event) {
+		var mouseUp = function(event) {
             event.preventDefault();
 
             if (getIsLeftMouseButton(event)) that._isPainting = false;
             else if (getIsRightMouseButton(event)) that._isErasing = false;
 
             return false;
-		}
+		};
 
-        function getIsLeftMouseButton(event) {
+        var getIsLeftMouseButton = function(event) {
             event = event || window.event;
 
             var button = event.which || event.button;
 
             return button == 1;
-        }
+        };
 
-        function getIsRightMouseButton(event) {
+        var getIsRightMouseButton = function(event) {
             event = event || window.event;
 
             var button = event.which || event.button;
 
             return button == 3;
-        }
+        };
 
 		//-----
 
         //----- Painting methods
 
-        function paint() {
+        var paint = function() {
             if (that._positioningCube.visible) {
                 var position = {
                     x: that._positioningCube.position.x,
@@ -302,7 +302,7 @@
 
                 if (!positionExists) {
         			var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
-        			var voxelMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000, });
+        			var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
 
         			var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
         			voxelMesh.position.x = position.x;
@@ -317,13 +317,14 @@
                             y: spacePosition.y,
                             z: spacePosition.z
                         },
+                        color: that._selectedColor,
                         mesh: voxelMesh
                     });
                 }
             }
-        }
+        };
 
-        function erase() {
+        var erase = function() {
             if (that._positioningCube.visible) {
                 var spacePosition = {
                     x: ((that._positioningCube.position.x-(that._voxelSize/2))/that._voxelSize),
@@ -346,7 +347,9 @@
 
 
     	return {
-    		start: function(container) {
+    		start: function(container, startColor) {
+                that._selectedColor = startColor;
+
     			init(container);
     		},
 
@@ -378,7 +381,15 @@
                     if (that._isPainting) paint();
                     else if (that._isErasing) erase();
 			    }
-	        }
+	        },
+
+            setColor: function(color) {
+                that._selectedColor = "#" + color;
+            },
+
+            getColor: function() {
+                return that._selectedColor;
+            }
     	};
     };
 
