@@ -4,6 +4,8 @@
 
     	var that = this;
 
+        this._clock = null;
+
     	this._containerElement = null;
     	this._containerWidth = null;
     	this._containerHeight = null;
@@ -16,7 +18,9 @@
 		this._mouse = null;
 
     	this._directionalLight = null;
+
     	this._camera = null;
+        this._controls = null;
 
     	this._renderer = null;
 
@@ -29,17 +33,24 @@
 
         this._positioningCube = null;
 
-        this._voxelSize = 25;
+        this._voxelSize = 10;
 
         this._level = 0;
 
-        this.cubes = [];
+        this._isPainting = false;
+        this._isErasing = false;
+
+        this._cubes = [];
+
+        this._cubeConfigs = [];
 
         // -----
 
         // ----- Constructor
 
     	function init(container) {
+            that._clock = new THREE.Clock();
+
 			that._containerElement = document.getElementById(container);
             that._containerWidth = document.body.clientWidth;
             that._containerHeight = document.body.clientHeight;
@@ -69,6 +80,9 @@
             that._renderer = getRenderer(that._containerWidth, that._containerHeight, that._skyboxColor, that._skyboxOpacity);
             that._containerElement.appendChild(that._renderer.domElement);
 
+            that._controls = getControls(that._scene, that._camera, that._renderer.domElement);
+            that._controls.setCameraPosition(0, 600, 750);
+
             render();
 
             bindWindowEvents();
@@ -81,28 +95,12 @@
         		aspect = (containerWidth/containerHeight),
         		far = 2000;
 
-            var positionAt = {
-            	x: 0,
-            	y: 600,
-            	z: 750
-            };
-
-            var lookAt = {
-            	x: 0,
-            	y: 0,
-            	z: 0
-            };
-
-            var camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, far);
-
-            camera.position.x = positionAt.x;
-            camera.position.y = positionAt.y;
-            camera.position.z = positionAt.z;
-
-            camera.lookAt(new THREE.Vector3(lookAt.x, lookAt.y, lookAt.z));
-
-            return camera;
+            return new THREE.PerspectiveCamera(fov, aspect, 0.1, far);
         }
+
+       	function getControls(scene, camera, domElement) {
+			return new THREE.FirstPersonControls(scene, camera, domElement);
+       	}
 
         function getDirectionalLight() {               
         	var color = 0xffffff,
@@ -143,7 +141,7 @@
 				geometry.vertices.push(new THREE.Vector3(i, 0,   size));
 			}
 
-			var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.15, transparent: true } );
+			var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.3, transparent: true } );
 
 			return new THREE.LineSegments( geometry, material );
         }
@@ -170,6 +168,7 @@
 
        	function render() {
             function updateScene() {
+               if (that._controls) that._controls.update(that._clock.getDelta());
             };
 
             function renderScene() {
@@ -197,6 +196,10 @@
 			}, false );
 
 			document.addEventListener('mousemove', repositionPositioningCube, false);
+
+			document.addEventListener('mousedown', mouseDown, false);
+
+			document.addEventListener('mouseup', mouseUp, false);
         }
 
 
@@ -218,11 +221,129 @@
 
 				that._positioningCube.position.copy( intersect.point ).add( intersect.face.normal );
 				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
+
+				if (that._isPainting) paint();
+                else if (that._isErasing) erase();
 			}
 			else that._positioningCube.visible = false;
 		}
 
+		function mouseDown(event) {
+            event.preventDefault();
+
+            if (getIsLeftMouseButton(event)) {
+                that._isPainting = true;
+
+                paint();
+            }
+            else if (getIsRightMouseButton(event)) {
+                that._isErasing = true;
+
+                erase();
+            }
+
+            return false;
+		}
+
+		function mouseUp(event) {
+            event.preventDefault();
+
+            if (getIsLeftMouseButton(event)) that._isPainting = false;
+            else if (getIsRightMouseButton(event)) that._isErasing = false;
+
+            return false;
+		}
+
+        function getIsLeftMouseButton(event) {
+            event = event || window.event;
+
+            var button = event.which || event.button;
+
+            return button == 1;
+        }
+
+        function getIsRightMouseButton(event) {
+            event = event || window.event;
+
+            var button = event.which || event.button;
+
+            return button == 3;
+        }
+
 		//-----
+
+        //----- Painting methods
+
+        function paint() {
+            if (that._positioningCube.visible) {
+                var position = {
+                    x: that._positioningCube.position.x,
+                    y: that._positioningCube.position.y,
+                    z: that._positioningCube.position.z
+                };
+
+                var spacePosition = {
+                    x: ((position.x-(that._voxelSize/2))/that._voxelSize),
+                    y: ((position.y-(that._voxelSize/2))/that._voxelSize),
+                    z: ((position.z-(that._voxelSize/2))/that._voxelSize)
+                };
+
+                var positionExists = false;
+
+                for (var i=0; i<that._cubes.length; i++) {
+                    if ((that._cubes[i].position.x === spacePosition.x) &&
+                        (that._cubes[i].position.y === spacePosition.y) && 
+                        (that._cubes[i].position.z === spacePosition.z)) {
+                        positionExists = true;
+
+                        break;
+                    }
+                }
+
+                if (!positionExists) {
+        			var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
+        			var voxelMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000, });
+
+        			var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+        			voxelMesh.position.x = position.x;
+        			voxelMesh.position.y = position.y;
+        			voxelMesh.position.z = position.z;
+
+        			that._scene.add(voxelMesh);
+
+        	        that._cubes.push({
+                        position: {
+                            x: spacePosition.x,
+                            y: spacePosition.y,
+                            z: spacePosition.z
+                        },
+                        mesh: voxelMesh
+                    });
+                }
+            }
+        }
+
+        function erase() {
+            if (that._positioningCube.visible) {
+                var spacePosition = {
+                    x: ((that._positioningCube.position.x-(that._voxelSize/2))/that._voxelSize),
+                    y: ((that._positioningCube.position.y-(that._voxelSize/2))/that._voxelSize),
+                    z: ((that._positioningCube.position.z-(that._voxelSize/2))/that._voxelSize)
+                };
+
+                for (var i=(that._cubes.length-1); i>=0; i--) {
+                    if ((that._cubes[i].position.x === spacePosition.x) &&
+                        (that._cubes[i].position.y === spacePosition.y) && 
+                        (that._cubes[i].position.z === spacePosition.z)) {
+                        that._scene.remove(that._cubes[i].mesh);;
+
+                        that._cubes.splice(i,1);
+                        break;
+                    }
+                }
+            }
+        }
+
 
     	return {
     		start: function(container) {
@@ -248,16 +369,16 @@
 
 	        setLevel: function(level) {
 	        	if (level >= 0) {
-	        		that._positioningCube.visible = false;
-
 			    	that._basePlane.position.y = (level*that._voxelSize);
 			    	that._baseGrid.position.y = (level*that._voxelSize);
 
+	        		that._positioningCube.position.y = (level*that._voxelSize)+(that._voxelSize/2);
+
 			    	that._level = level;
+
+					if (that._isPainting) paint();
 			    }
 	        }
-
-			//-----
     	};
     };
 
