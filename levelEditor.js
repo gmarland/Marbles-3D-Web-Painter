@@ -311,7 +311,7 @@
 
                 if (positionExists) that.erase(position);
 
-    	        that._voxels.push(that.addPyramid(position, spacePosition));
+    	        that._voxels.push(that.addTriangle(position, spacePosition));
             }
         };
 
@@ -379,7 +379,53 @@
                 color: that._selectedColor,
                 mesh: voxelMesh
             };
-        }
+        };
+
+        this.addTriangle = function(position, spacePosition) {
+            var voxelGeometry = new THREE.Geometry();
+
+            voxelGeometry.vertices = [
+                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
+                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)*-1)
+            ];
+
+            voxelGeometry.faces = [
+                new THREE.Face3( 5, 1, 0),
+                new THREE.Face3( 4, 2, 1),
+                new THREE.Face3( 1, 5, 4),
+                new THREE.Face3( 4, 3, 2),
+                new THREE.Face3( 4, 0, 3),
+                new THREE.Face3( 4, 5, 0),
+                new THREE.Face3( 0, 1, 3),
+                new THREE.Face3( 1, 2, 3)
+            ];    
+
+            voxelGeometry.computeFaceNormals();
+
+            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
+
+            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+            voxelMesh.position.x = position.x;
+            voxelMesh.position.y = position.y;
+            voxelMesh.position.z = position.z;
+
+            that._scene.add(voxelMesh);
+
+            return {
+                position: {
+                    x: spacePosition.x,
+                    y: spacePosition.y,
+                    z: spacePosition.z
+                },
+                shape: "pyramid",
+                color: that._selectedColor,
+                mesh: voxelMesh
+            };
+        };
 
         this.erase = function(spacePosition) {
             var position = null;
