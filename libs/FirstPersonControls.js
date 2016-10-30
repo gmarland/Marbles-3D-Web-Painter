@@ -1,5 +1,7 @@
-THREE.FirstPersonControls = function (scene, camera, domElement) {
+THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 	this._movementSpeed = 10;
+
+	this._moveFunction = moveFunction;
 
     this._scene = scene;
 
@@ -96,19 +98,62 @@ THREE.FirstPersonControls = function (scene, camera, domElement) {
 	};
 
 	this.update = function( delta ) {
+		var actionOccured = false;
+
 		// Actions to move the camera via keyboard commands
-		if (this.moveForward) this._yawObject.translateZ(-this._movementSpeed);
-		if (this.moveBackward) this._yawObject.translateZ(this._movementSpeed);
-		if (this.moveLeft) this._yawObject.translateX(-this._movementSpeed);
-		if (this.moveRight) this._yawObject.translateX(this._movementSpeed);
-		if (this.moveUp) this._yawObject.translateY(this._movementSpeed);
-		if (this.moveDown) this._yawObject.translateY(-this._movementSpeed);
+		if (this.moveForward) {
+			this._yawObject.translateZ(-this._movementSpeed);
+			actionOccured = true;
+		}
+		
+		if (this.moveBackward) {
+			this._yawObject.translateZ(this._movementSpeed);
+			actionOccured = true;
+		}
 
-		if (this.rotateLeft) this._yawObject.rotation.y += 0.04;
-		if (this.rotateRight) this._yawObject.rotation.y -= 0.04;
+		if (this.moveLeft) {
+			this._yawObject.translateX(-this._movementSpeed);
+			actionOccured = true;
+		}
 
-		if (this.rotateUp) this._pitchObject.rotation.x -= 0.04;;
-		if (this.rotateDown) this._pitchObject.rotation.x += 0.04;
+		if (this.moveRight) {
+			this._yawObject.translateX(this._movementSpeed);
+			actionOccured = true;
+		}
+
+		if (this.moveUp) {
+			this._yawObject.translateY(this._movementSpeed);
+			actionOccured = true;
+		}
+		
+		if (this.moveDown) {
+			this._yawObject.translateY(-this._movementSpeed);
+			actionOccured = true;
+		}
+
+		if (this.rotateLeft) {
+			this._yawObject.rotation.y += 0.04;
+			actionOccured = true;
+		}
+
+		if (this.rotateRight) {
+			this._yawObject.rotation.y -= 0.04;
+			actionOccured = true;
+		}
+
+		if (this.rotateUp) {
+			this._pitchObject.rotation.x -= 0.04;
+			actionOccured = true;
+		}
+
+		if (this.rotateDown) {
+			this._pitchObject.rotation.x += 0.04;
+			actionOccured = true;
+		}
+
+		if ((actionOccured) && (this._moveFunction)) {
+			this._moveFunction();
+		}
 	};
 
 	this.dispose = function() {
@@ -140,5 +185,4 @@ THREE.FirstPersonControls = function (scene, camera, domElement) {
 			fn.apply( scope, arguments );
 		};
 	}
-
 };

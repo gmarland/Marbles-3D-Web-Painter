@@ -99,7 +99,12 @@
         };
 
        	var getControls = function(scene, camera, domElement) {
-			return new THREE.FirstPersonControls(scene, camera, domElement);
+			return new THREE.FirstPersonControls(scene, camera, domElement, function() {
+                repositionPositioningCube();
+
+                if (that._isPainting) paint();
+                else if (that._isErasing) erase();
+            });
        	};
 
         var getDirectionalLight = function() {               
@@ -154,6 +159,10 @@
 			positioningMesh.visible = false;
 
 			return positioningMesh;
+        };
+
+        var updatePositioningVoxelColor = function() {
+            that._positioningCube.material.color = new THREE.Color(that._selectedColor);
         };
 
         // -----
@@ -400,6 +409,7 @@
 
             setColor: function(color) {
                 that._selectedColor = "#" + color;
+                updatePositioningVoxelColor();
             },
 
             getColor: function() {
