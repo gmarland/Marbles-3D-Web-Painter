@@ -408,7 +408,7 @@
 
             setColor: function(color) {
                 that._selectedColor = "#" + color;
-                updatePositioningVoxelColor();
+                that.updatePositioningVoxelColor();
             },
 
             getColor: function() {
