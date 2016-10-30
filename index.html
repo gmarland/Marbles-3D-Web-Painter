@@ -10,8 +10,25 @@
 	<body oncontextmenu="return false">
 		<div id="scene-container">
 		<div id="shape-select-container">
-			<div id="selected-shape-container" class="centered">
+			<div id="selected-shape-container" class="centered left">
 				<img id="selected-shape" src="images/square.png" border="0" class="selectable" onclick="toggleShapeSelect()" />
+			</div>
+			<div class="right">
+				<div class="table">
+					<div class="row">
+						<div class="cell"><img src="images/up-arrow.png" border="0" class="selectable" onclick="rotateUp()" /></div>
+					</div>
+					<div class="row">
+						<div class="cell"><img src="images/down-arrow.png" border="0" class="selectable" onclick="rotateDown()" /></div>
+					</div>
+				</div>
+			</div>
+			<div class="clear"></div>
+			<div class="table full">
+				<div class="row">
+					<div class="cell left-aligned"><img src="images/left-arrow.png" border="0" class="selectable" onclick="rotateLeft()" /></div>
+					<div class="cell right-aligned"><img src="images/right-arrow.png" border="0" class="selectable" onclick="rotateRight()" /></div>
+				</div>
 			</div>
 			<div id="all-shapes" class="table" style="display: none;">
 				<div class="row">
@@ -53,6 +70,22 @@
 				document.getElementById("selected-shape").src = "images/" + shape + ".png"
 
 				hideShapeSelect();
+			}
+
+			function rotateLeft() {
+				levelEditor.setXRotation(-90);
+			}
+
+			function rotateRight() {
+				levelEditor.setXRotation(90);
+			}
+
+			function rotateUp() {
+				levelEditor.setYRotation(-90);				
+			}
+
+			function rotateDown() {
+				levelEditor.setYRotation(90);
 			}
 
 			document.addEventListener('keyup', function(e) {

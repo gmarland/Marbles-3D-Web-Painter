@@ -14,8 +14,8 @@ html, body {
 	bottom: 0px;
 	left: 0px;
 	height: 50px;
-	width: 50px;
-	padding: 5px;
+	width: 55px;
+	padding: 10px;
 	border-top: 1px solid #666666;
 	border-left: 1px solid #666666;
     box-shadow: 0 1px 10px #373737;
@@ -75,8 +75,30 @@ html, body {
 	display: table-cell;
 }
 
+.left {
+	position: relative;
+	float: left;
+}
+
+.right {
+	position: relative;
+	float: right;
+}
+
+.clear {
+	clear: both;
+}
+
 .centered {
 	text-align: center;
+}
+
+.left-aligned {
+	text-align: left;
+}
+
+.right-aligned {
+	text-align: right;
 }
 
 .selectable {

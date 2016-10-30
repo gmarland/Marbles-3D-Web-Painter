@@ -43,6 +43,9 @@
         this._selectedShape = "square";
         this._selectedColor = "#000000";
 
+        this._xRotation = 0;
+        this._yRotation = 0;
+
         this._voxels = [];
 
         // -----
@@ -337,9 +340,62 @@
                 },
                 shape: "cube",
                 color: that._selectedColor,
+                xRotation: that._xRotation,
+                yRotation: that._yRotation,
                 mesh: voxelMesh
             };
         }
+
+        this.addTriangle = function(position, spacePosition) {
+            var voxelGeometry = new THREE.Geometry();
+
+            voxelGeometry.vertices = [
+                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
+                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)*-1)
+            ];
+
+            voxelGeometry.faces = [
+                new THREE.Face3( 5, 1, 0),
+                new THREE.Face3( 4, 2, 1),
+                new THREE.Face3( 1, 5, 4),
+                new THREE.Face3( 4, 3, 2),
+                new THREE.Face3( 4, 0, 3),
+                new THREE.Face3( 4, 5, 0),
+                new THREE.Face3( 0, 1, 3),
+                new THREE.Face3( 1, 2, 3)
+            ];    
+
+            voxelGeometry.computeFaceNormals();
+
+            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
+
+            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+            voxelMesh.position.x = position.x;
+            voxelMesh.position.y = position.y;
+            voxelMesh.position.z = position.z;
+
+            voxelMesh.rotation.y = that._xRotation;
+            voxelMesh.rotation.x = that._yRotation;
+
+            that._scene.add(voxelMesh);
+
+            return {
+                position: {
+                    x: spacePosition.x,
+                    y: spacePosition.y,
+                    z: spacePosition.z
+                },
+                shape: "triangle",
+                color: that._selectedColor,
+                xRotation: that._xRotation,
+                yRotation: that._yRotation,
+                mesh: voxelMesh
+            };
+        };
 
         this.addPyramid = function(position, spacePosition) {
             var voxelGeometry = new THREE.Geometry();
@@ -380,52 +436,8 @@
                 },
                 shape: "pyramid",
                 color: that._selectedColor,
-                mesh: voxelMesh
-            };
-        };
-
-        this.addTriangle = function(position, spacePosition) {
-            var voxelGeometry = new THREE.Geometry();
-
-            voxelGeometry.vertices = [
-                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
-                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)*-1)
-            ];
-
-            voxelGeometry.faces = [
-                new THREE.Face3( 5, 1, 0),
-                new THREE.Face3( 4, 2, 1),
-                new THREE.Face3( 1, 5, 4),
-                new THREE.Face3( 4, 3, 2),
-                new THREE.Face3( 4, 0, 3),
-                new THREE.Face3( 4, 5, 0),
-                new THREE.Face3( 0, 1, 3),
-                new THREE.Face3( 1, 2, 3)
-            ];    
-
-            voxelGeometry.computeFaceNormals();
-
-            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
-
-            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-            voxelMesh.position.x = position.x;
-            voxelMesh.position.y = position.y;
-            voxelMesh.position.z = position.z;
-
-            that._scene.add(voxelMesh);
-
-            return {
-                position: {
-                    x: spacePosition.x,
-                    y: spacePosition.y,
-                    z: spacePosition.z
-                },
-                shape: "triangle",
-                color: that._selectedColor,
+                xRotation: that._xRotation,
+                yRotation: that._yRotation,
                 mesh: voxelMesh
             };
         };
@@ -464,7 +476,11 @@
                     }
                 }
             }
-        }
+        };
+
+        this.degToRad = function(degrees) {
+          return degrees * Math.PI / 180;
+        };
 
     	return {
     		start: function(container, startColor) {
@@ -514,6 +530,17 @@
 
             setShape: function(shape) {
                 that._selectedShape = shape;
+
+                that._xRotation = 0;
+                that._yRotation = 0;
+            },
+
+            setXRotation: function(deg) {
+                that._xRotation += that.degToRad(deg);
+            },
+
+            setYRotation: function(deg) {
+                that._yRotation += that.degToRad(deg);
             }
     	};
     };
