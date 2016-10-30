@@ -42,7 +42,7 @@
 
         this._selectedColor = "#000000";
 
-        this._cubes = [];
+        this._voxels = [];
 
         // -----
 
@@ -299,10 +299,10 @@
 
                 var positionExists = false;
 
-                for (var i=0; i<that._cubes.length; i++) {
-                    if ((that._cubes[i].position.x === spacePosition.x) &&
-                        (that._cubes[i].position.y === spacePosition.y) && 
-                        (that._cubes[i].position.z === spacePosition.z)) {
+                for (var i=0; i<that._voxels.length; i++) {
+                    if ((that._voxels[i].position.x === spacePosition.x) &&
+                        (that._voxels[i].position.y === spacePosition.y) && 
+                        (that._voxels[i].position.z === spacePosition.z)) {
                         positionExists = true;
 
                         break;
@@ -311,27 +311,75 @@
 
                 if (positionExists) that.erase(position);
 
-    			var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
-    			var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
-
-    			var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-    			voxelMesh.position.x = position.x;
-    			voxelMesh.position.y = position.y;
-    			voxelMesh.position.z = position.z;
-
-    			that._scene.add(voxelMesh);
-
-    	        that._cubes.push({
-                    position: {
-                        x: spacePosition.x,
-                        y: spacePosition.y,
-                        z: spacePosition.z
-                    },
-                    color: that._selectedColor,
-                    mesh: voxelMesh
-                });
+    	        that._voxels.push(that.addPyramid(position, spacePosition));
             }
         };
+
+        this.addCube = function(position, spacePosition) {
+            var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
+            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
+
+            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+            voxelMesh.position.x = position.x;
+            voxelMesh.position.y = position.y;
+            voxelMesh.position.z = position.z;
+
+            that._scene.add(voxelMesh);
+
+            return {
+                position: {
+                    x: spacePosition.x,
+                    y: spacePosition.y,
+                    z: spacePosition.z
+                },
+                shape: "cube",
+                color: that._selectedColor,
+                mesh: voxelMesh
+            };
+        }
+
+        this.addPyramid = function(position, spacePosition) {
+            var voxelGeometry = new THREE.Geometry();
+
+            voxelGeometry.vertices = [
+                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
+                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
+                new THREE.Vector3( 0, (that._voxelSize/2), 0)
+            ];
+
+            voxelGeometry.faces = [
+                new THREE.Face3( 4, 1, 0),
+                new THREE.Face3( 4, 2, 1),
+                new THREE.Face3( 4, 3, 2),
+                new THREE.Face3( 4, 0, 3),
+                new THREE.Face3( 0, 1, 3),
+                new THREE.Face3( 1, 2, 3)
+            ];    
+
+            voxelGeometry.computeFaceNormals();
+
+            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
+
+            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+            voxelMesh.position.x = position.x;
+            voxelMesh.position.y = position.y;
+            voxelMesh.position.z = position.z;
+
+            that._scene.add(voxelMesh);
+
+            return {
+                position: {
+                    x: spacePosition.x,
+                    y: spacePosition.y,
+                    z: spacePosition.z
+                },
+                shape: "pyramid",
+                color: that._selectedColor,
+                mesh: voxelMesh
+            };
+        }
 
         this.erase = function(spacePosition) {
             var position = null;
@@ -356,13 +404,13 @@
                     z: ((position.z-(that._voxelSize/2))/that._voxelSize)
                 };
 
-                for (var i=(that._cubes.length-1); i>=0; i--) {
-                    if ((that._cubes[i].position.x === spacePosition.x) &&
-                        (that._cubes[i].position.y === spacePosition.y) && 
-                        (that._cubes[i].position.z === spacePosition.z)) {
-                        that._scene.remove(that._cubes[i].mesh);;
+                for (var i=(that._voxels.length-1); i>=0; i--) {
+                    if ((that._voxels[i].position.x === spacePosition.x) &&
+                        (that._voxels[i].position.y === spacePosition.y) && 
+                        (that._voxels[i].position.z === spacePosition.z)) {
+                        that._scene.remove(that._voxels[i].mesh);;
 
-                        that._cubes.splice(i,1);
+                        that._voxels.splice(i,1);
                         break;
                     }
                 }
