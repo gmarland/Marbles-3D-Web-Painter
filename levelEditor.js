@@ -394,7 +394,7 @@
             ];
 
             voxelGeometry.faces = [
-                new THREE.Face3( 5s, 1, 0),
+                new THREE.Face3( 5, 1, 0),
                 new THREE.Face3( 4, 2, 1),
                 new THREE.Face3( 1, 5, 4),
                 new THREE.Face3( 4, 3, 2),
