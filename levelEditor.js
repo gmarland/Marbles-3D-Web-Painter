@@ -48,7 +48,7 @@
 
         // ----- Constructor
 
-    	var init = function(container) {
+    	this.init = function(container) {
             that._clock = new THREE.Clock();
 
 			that._containerElement = document.getElementById(container);
@@ -60,37 +60,37 @@
 			that._raycaster = new THREE.Raycaster();
 			that._mouse = new THREE.Vector2();
 
-           	that._directionalLight = getDirectionalLight();
+           	that._directionalLight = that.getDirectionalLight();
             that._scene.add(that._directionalLight);
 
-            that._camera = getCamera(that._containerWidth, that._containerHeight);
+            that._camera = that.getCamera(that._containerWidth, that._containerHeight);
             that._scene.add(that._camera);
 
-            that._basePlane = getBasePlane();
+            that._basePlane = that.getBasePlane();
 			that._scene.add(that._basePlane);
 
-			that._baseGrid = getBaseGrid();
+			that._baseGrid = that.getBaseGrid();
 			that._scene.add(that._baseGrid);
 
-			that._positioningCube = getPositioningVoxel();
+			that._positioningCube = that.getPositioningVoxel();
 			that._scene.add(that._positioningCube);			
 
 			that._scene.add(that._baseGrid);
 
-            that._renderer = getRenderer(that._containerWidth, that._containerHeight, that._skyboxColor, that._skyboxOpacity);
+            that._renderer = that.getRenderer(that._containerWidth, that._containerHeight, that._skyboxColor, that._skyboxOpacity);
             that._containerElement.appendChild(that._renderer.domElement);
 
-            that._controls = getControls(that._scene, that._camera, that._renderer.domElement);
+            that._controls = that.getControls(that._scene, that._camera, that._renderer.domElement);
             that._controls.setCameraPosition(0, 600, 750);
 
-            render();
+            that.render();
 
-            bindWindowEvents();
+            that.bindWindowEvents();
     	};
 
         // -----
 
-        var getCamera = function(containerWidth, containerHeight) {
+        this.getCamera = function(containerWidth, containerHeight) {
         	var fov = 75,
         		aspect = (containerWidth/containerHeight),
         		far = 2000;
@@ -98,16 +98,16 @@
             return new THREE.PerspectiveCamera(fov, aspect, 0.1, far);
         };
 
-       	var getControls = function(scene, camera, domElement) {
+       	this.getControls = function(scene, camera, domElement) {
 			return new THREE.FirstPersonControls(scene, camera, domElement, function() {
-                repositionPositioningCube();
+                that.repositionPositioningCube();
 
-                if (that._isPainting) paint();
-                else if (that._isErasing) erase();
+                if (that._isPainting) that.paint();
+                else if (that._isErasing) that.erase();
             });
        	};
 
-        var getDirectionalLight = function() {               
+        this.getDirectionalLight = function() {               
         	var color = 0xffffff,
         		intensity = 1.0;
 
@@ -125,14 +125,14 @@
 
         // ----- Methods for creating base plane
 
-        var getBasePlane = function() {
+        this.getBasePlane = function() {
 			var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
 			geometry.rotateX( - Math.PI / 2 );
 
 			return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
         };
 
-        var getBaseGrid = function() {
+        this.getBaseGrid = function() {
 			var size = that._basePlaneWidth/2, 
 				step = that._voxelSize;
 
@@ -151,7 +151,7 @@
 			return new THREE.LineSegments( geometry, material );
         }
 
-        var getPositioningVoxel = function() {
+        this.getPositioningVoxel = function() {
 			var positioningGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
 			var positioningMaterial = new THREE.MeshBasicMaterial( { color: new THREE.Color(that._selectedColor), opacity: 0.5, transparent: true } );
 
@@ -161,13 +161,13 @@
 			return positioningMesh;
         };
 
-        var updatePositioningVoxelColor = function() {
+        this.updatePositioningVoxelColor = function() {
             that._positioningCube.material.color = new THREE.Color(that._selectedColor);
         };
 
         // -----
 
-    	var getRenderer = function(containerWidth, containerHeight, skyboxColor, skyboxOpacity) {
+    	this.getRenderer = function(containerWidth, containerHeight, skyboxColor, skyboxOpacity) {
             var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(containerWidth, containerHeight);
             renderer.setClearColor(skyboxColor, skyboxOpacity);
@@ -175,7 +175,7 @@
             return renderer;
     	};
 
-       	var render = function() {
+       	this.render = function() {
             function updateScene() {
                if (that._controls) that._controls.update(that._clock.getDelta());
             };
@@ -193,7 +193,7 @@
 
         //----- Mouse binding events
 
-        var bindWindowEvents = function() {
+        this.bindWindowEvents = function() {
 			window.addEventListener('resize', function(e) {
 	            that._containerWidth = document.body.clientWidth;
 	            that._containerHeight = document.body.clientHeight;
@@ -204,15 +204,15 @@
 				that._renderer.setSize(that._containerWidth, that._containerHeight);
 			}, false );
 
-			document.addEventListener('mousemove', repositionPositioningCube, false);
+			document.addEventListener('mousemove', that.repositionPositioningCube, false);
 
-			document.addEventListener('mousedown', mouseDown, false);
+			document.addEventListener('mousedown', that.mouseDown, false);
 
-			document.addEventListener('mouseup', mouseUp, false);
+			document.addEventListener('mouseup', that.mouseUp, false);
         };
 
 
-		var repositionPositioningCube = function(event) {
+		this.repositionPositioningCube = function(event) {
 			if (event) {
 				event.preventDefault();
 
@@ -231,39 +231,39 @@
 				that._positioningCube.position.copy( intersect.point ).add( intersect.face.normal );
 				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
 
-				if (that._isPainting) paint();
-                else if (that._isErasing) erase();
+				if (that._isPainting) that.paint();
+                else if (that._isErasing) that.erase();
 			}
 			else that._positioningCube.visible = false;
 		};
 
-		var mouseDown = function(event) {
+		this.mouseDown = function(event) {
             event.preventDefault();
 
-            if (getIsLeftMouseButton(event)) {
+            if (that.getIsLeftMouseButton(event)) {
                 that._isPainting = true;
 
-                paint();
+                that.paint();
             }
-            else if (getIsRightMouseButton(event)) {
+            else if (that.getIsRightMouseButton(event)) {
                 that._isErasing = true;
 
-                erase();
+                that.erase();
             }
 
             return false;
 		};
 
-		var mouseUp = function(event) {
+		this.mouseUp = function(event) {
             event.preventDefault();
 
-            if (getIsLeftMouseButton(event)) that._isPainting = false;
-            else if (getIsRightMouseButton(event)) that._isErasing = false;
+            if (that.getIsLeftMouseButton(event)) that._isPainting = false;
+            else if (that.getIsRightMouseButton(event)) that._isErasing = false;
 
             return false;
 		};
 
-        var getIsLeftMouseButton = function(event) {
+        this.getIsLeftMouseButton = function(event) {
             event = event || window.event;
 
             var button = event.which || event.button;
@@ -271,7 +271,7 @@
             return button == 1;
         };
 
-        var getIsRightMouseButton = function(event) {
+        this.getIsRightMouseButton = function(event) {
             event = event || window.event;
 
             var button = event.which || event.button;
@@ -283,7 +283,7 @@
 
         //----- Painting methods
 
-        var paint = function() {
+        this.paint = function() {
             if (that._positioningCube.visible) {
                 var position = {
                     x: that._positioningCube.position.x,
@@ -309,7 +309,7 @@
                     }
                 }
 
-                if (positionExists) erase(position);
+                if (positionExists) that.erase(position);
 
     			var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
     			var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
@@ -333,7 +333,7 @@
             }
         };
 
-        var erase = function(spacePosition) {
+        this.erase = function(spacePosition) {
             var position = null;
 
             if (spacePosition != null) {
@@ -369,12 +369,11 @@
             }
         }
 
-
     	return {
     		start: function(container, startColor) {
                 that._selectedColor = startColor;
 
-    			init(container);
+    			that.init(container);
     		},
 
 	        // ----- Public Methods
@@ -402,8 +401,8 @@
 
 			    	that._level = level;
 
-                    if (that._isPainting) paint();
-                    else if (that._isErasing) erase();
+                    if (that._isPainting) that.paint();
+                    else if (that._isErasing) that.erase();
 			    }
 	        },
 
