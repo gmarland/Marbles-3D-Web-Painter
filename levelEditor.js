@@ -281,7 +281,7 @@
                     y: that._positioningCube.position.y,
                     z: that._positioningCube.position.z
                 };
-
+                
                 var spacePosition = {
                     x: ((position.x-(that._voxelSize/2))/that._voxelSize),
                     y: ((position.y-(that._voxelSize/2))/that._voxelSize),
@@ -300,36 +300,51 @@
                     }
                 }
 
-                if (!positionExists) {
-        			var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
-        			var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
+                if (positionExists) erase(position);
 
-        			var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-        			voxelMesh.position.x = position.x;
-        			voxelMesh.position.y = position.y;
-        			voxelMesh.position.z = position.z;
+    			var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
+    			var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
 
-        			that._scene.add(voxelMesh);
+    			var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+    			voxelMesh.position.x = position.x;
+    			voxelMesh.position.y = position.y;
+    			voxelMesh.position.z = position.z;
 
-        	        that._cubes.push({
-                        position: {
-                            x: spacePosition.x,
-                            y: spacePosition.y,
-                            z: spacePosition.z
-                        },
-                        color: that._selectedColor,
-                        mesh: voxelMesh
-                    });
-                }
+    			that._scene.add(voxelMesh);
+
+    	        that._cubes.push({
+                    position: {
+                        x: spacePosition.x,
+                        y: spacePosition.y,
+                        z: spacePosition.z
+                    },
+                    color: that._selectedColor,
+                    mesh: voxelMesh
+                });
             }
         };
 
-        var erase = function() {
-            if (that._positioningCube.visible) {
+        var erase = function(spacePosition) {
+            var position = null;
+
+            if (spacePosition != null) {
+                position = spacePosition;
+            }
+            else {
+                if (that._positioningCube.visible) {
+                    var position = {
+                        x: that._positioningCube.position.x,
+                        y: that._positioningCube.position.y,
+                        z: that._positioningCube.position.z
+                    };
+                }
+            }
+
+            if (position !== null) {
                 var spacePosition = {
-                    x: ((that._positioningCube.position.x-(that._voxelSize/2))/that._voxelSize),
-                    y: ((that._positioningCube.position.y-(that._voxelSize/2))/that._voxelSize),
-                    z: ((that._positioningCube.position.z-(that._voxelSize/2))/that._voxelSize)
+                    x: ((position.x-(that._voxelSize/2))/that._voxelSize),
+                    y: ((position.y-(that._voxelSize/2))/that._voxelSize),
+                    z: ((position.z-(that._voxelSize/2))/that._voxelSize)
                 };
 
                 for (var i=(that._cubes.length-1); i>=0; i--) {
