@@ -330,6 +330,9 @@
             voxelMesh.position.y = position.y;
             voxelMesh.position.z = position.z;
 
+            voxelMesh.rotation.y = that._xRotation;
+            voxelMesh.rotation.x = that._yRotation;
+
             that._scene.add(voxelMesh);
 
             return {
@@ -425,6 +428,9 @@
             voxelMesh.position.x = position.x;
             voxelMesh.position.y = position.y;
             voxelMesh.position.z = position.z;
+
+            voxelMesh.rotation.y = that._xRotation;
+            voxelMesh.rotation.x = that._yRotation;
 
             that._scene.add(voxelMesh);
 
@@ -537,10 +543,16 @@
 
             setXRotation: function(deg) {
                 that._xRotation += that.degToRad(deg);
+
+                if (that._xRotation === (Math.PI*2)) that._xRotation = 0;
+                else if (that._xRotation === ((Math.PI*-1)*2)) that._xRotation = 0;
             },
 
             setYRotation: function(deg) {
                 that._yRotation += that.degToRad(deg);
+
+                if (that._yRotation === (Math.PI*2)) that._yRotation = 0;
+                else if (that._yRotation === ((Math.PI*-1)*2)) that._yRotation = 0;
             }
     	};
     };
