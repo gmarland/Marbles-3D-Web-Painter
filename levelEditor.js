@@ -40,6 +40,7 @@
         this._isPainting = false;
         this._isErasing = false;
 
+        this._selectedShape = "square";
         this._selectedColor = "#000000";
 
         this._voxels = [];
@@ -311,7 +312,9 @@
 
                 if (positionExists) that.erase(position);
 
-    	        that._voxels.push(that.addTriangle(position, spacePosition));
+                if (that._selectedShape.toLowerCase() == "square") that._voxels.push(that.addCube(position, spacePosition));
+                else if (that._selectedShape.toLowerCase() == "triangle") that._voxels.push(that.addTriangle(position, spacePosition));
+                else if (that._selectedShape.toLowerCase() == "pyramid") that._voxels.push(that.addPyramid(position, spacePosition));
             }
         };
 
@@ -507,6 +510,10 @@
 
             getColor: function() {
                 return that._selectedColor;
+            },
+
+            setShape: function(shape) {
+                that._selectedShape = shape;
             }
     	};
     };

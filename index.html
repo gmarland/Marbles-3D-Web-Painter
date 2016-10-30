@@ -17,6 +17,31 @@
 				z-index: 1;
 			}
 
+			#shape-select-container {
+				position: fixed;
+				bottom: 0px;
+				left: 0px;
+				height: 50px;
+				width: 50px;
+				padding: 5px;
+				border-top: 1px solid #666666;
+				border-left: 1px solid #666666;
+			    box-shadow: 0 1px 10px #373737;
+				z-index: 3;
+			}
+
+			#all-shapes {
+				position: absolute;
+				top: -60px;
+				left: 0px;
+				border: 1px solid #666666;
+			    box-shadow: 0 1px 10px #373737;
+			}
+
+			#all-shapes img {
+				margin: 10px;
+			}
+
 			#color-select-container {
 				position: fixed;
 				bottom: 0px;
@@ -38,10 +63,46 @@
 			    white-space: nowrap;
 			    overflow: hidden;
 			}
+
+			.table {
+				display: table;
+			}
+
+			.table.full {
+				width: 100%;
+			}
+
+			.table .row {
+				display: table-row;
+			}
+
+			.table .row .cell {
+				display: table-cell;
+			}
+
+			.centered {
+				text-align: center;
+			}
+
+			.selectable {
+				cursor: pointer;
+			}
 		</style>
 	</head>
 	<body oncontextmenu="return false">
 		<div id="scene-container">
+		<div id="shape-select-container">
+			<div id="selected-shape-container" class="centered">
+				<img id="selected-shape" src="images/square.png" border="0" class="selectable" onclick="toggleShapeSelect()" />
+			</div>
+			<div id="all-shapes" class="table" style="display: none;">
+				<div class="row">
+					<div class="cell centered"><img src="images/square.png" border="0" class="selectable" onclick="setShape('square')" /></div>
+					<div class="cell centered"><img src="images/triangle.png" border="0" class="selectable" onclick="setShape('triangle')" /></div>
+					<div class="cell centered"><img src="images/pyramid.png" border="0" class="selectable" onclick="setShape('pyramid')" /></div>
+				</div>
+			</div>
+		</div>
 		<div id="color-select-container"><input type="button" id="color-select" class="jscolor" onchange="setColor(this.jscolor)" /></div>
 		<script type="text/javascript">	
 			var startColor = "#ff0000";
@@ -53,6 +114,27 @@
 
 			function setColor(color) {	
 				levelEditor.setColor(color.toString());
+			}
+
+			function toggleShapeSelect() {
+				if (document.getElementById("all-shapes").style.display == "block") hideShapeSelect();
+				else openShapeSelect();
+			}
+
+			function openShapeSelect() {
+				document.getElementById("all-shapes").style.display = "block";	
+			}
+
+			function hideShapeSelect() {
+				document.getElementById("all-shapes").style.display = "none";		
+			}
+
+			function setShape(shape) {
+				levelEditor.setShape(shape);
+
+				document.getElementById("selected-shape").src = "images/" + shape + ".png"
+
+				hideShapeSelect();
 			}
 
 			document.addEventListener('keyup', function(e) {
