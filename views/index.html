@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<title>Marble Madness Level Editor</title>
+		<script type="text/javascript" src="/third-party-libs/jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="/third-party-libs/three.min.js"></script>
 		<script type="text/javascript" src="/third-party-libs/jscolor.js"></script>
 		<script type="text/javascript" src="/libs/FirstPersonControls.js"></script>
@@ -42,7 +43,7 @@
 		<script type="text/javascript">	
 			var startColor = "#ff0000";
 
-			document.getElementById("color-select").value = startColor;
+			$("#color-select").val(startColor);
 
 			var levelEditor = (new LevelEditor());
 			levelEditor.start("scene-container", startColor);
@@ -52,22 +53,22 @@
 			}
 
 			function toggleShapeSelect() {
-				if (document.getElementById("all-shapes").style.display == "block") hideShapeSelect();
+				if ($("#all-shapes").is(":visible")) hideShapeSelect();
 				else openShapeSelect();
 			}
 
 			function openShapeSelect() {
-				document.getElementById("all-shapes").style.display = "block";	
+				$("#all-shapes").show();	
 			}
 
 			function hideShapeSelect() {
-				document.getElementById("all-shapes").style.display = "none";		
+				$("#all-shapes").hide();
 			}
 
 			function setShape(shape) {
 				levelEditor.setShape(shape);
 
-				document.getElementById("selected-shape").src = "images/" + shape + ".png"
+				$("#selected-shape").attr("src", "images/" + shape + ".png");
 
 				hideShapeSelect();
 			}
