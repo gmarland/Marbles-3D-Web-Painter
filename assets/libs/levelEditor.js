@@ -580,7 +580,13 @@
                     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
                 }
 
-                if (that._sceneId == null) that._sceneId = guid();
+                var newScene = false;
+
+                if (that._sceneId == null) {
+                    that._sceneId = guid();
+
+                    newScene = true;
+                }
 
                 var scene = [];
 
@@ -601,7 +607,7 @@
                         scene: JSON.stringify(scene)
                     },
                     success: function (response) {
-                        window.location.href = "/" + that._sceneId;
+                        if (newScene) window.location.href = "/" + that._sceneId;
                     },
                     error: function(response) {
 
