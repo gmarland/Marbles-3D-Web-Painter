@@ -2,7 +2,16 @@
 	
 	var express = require("express"),
 		bodyParser = require("body-parser"),
-		path = require("path");
+		path = require("path"),
+		fs = require('fs');
+ 
+
+// Load config 
+
+	// We need the config file needs to exist. It should be JSON and have the property "path", where configs are wrote to.
+	var dataStorageContents = fs.readFileSync(path.join(__dirname, "data-storage.config"), 'utf8');
+
+	global.config = JSON.parse(dataStorageContents);
 
 // Instantiate Express
 
