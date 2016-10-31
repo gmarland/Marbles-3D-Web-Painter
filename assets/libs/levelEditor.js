@@ -601,7 +601,7 @@
                         scene: JSON.stringify(scene)
                     },
                     success: function (response) {
-
+                        window.location.href = "/" + that._sceneId;
                     },
                     error: function(response) {
 
