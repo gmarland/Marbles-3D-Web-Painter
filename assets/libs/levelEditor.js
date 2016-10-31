@@ -88,6 +88,7 @@
 
             that._controls = that.getControls(that._scene, that._camera, that._renderer.domElement);
             that._controls.setCameraPosition(0, 600, 750);
+            that._controls.rotateCamera(0, that.degToRad(-45));
 
             that.render();
 
@@ -509,6 +510,14 @@
 	            that._keepRenderingScene = false;
 	        },
 
+            setCameraPosition: function(position) {
+                that._controls.setCameraPosition(position.x, position.y, position.z);
+            },
+
+            setCameraRotation: function(rotation) {
+                that._controls.rotateCamera(rotation.x, rotation.y);
+            },
+
 	        getLevel: function() {
 	        	return that._level;
 	        },
@@ -580,13 +589,7 @@
                     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
                 }
 
-                var newScene = false;
-
-                if (that._sceneId == null) {
-                    that._sceneId = guid();
-
-                    newScene = true;
-                }
+                if (that._sceneId == null) that._sceneId = guid();
 
                 var scene = [];
 
@@ -605,9 +608,6 @@
                     type: "POST",
                     data: {
                         scene: JSON.stringify(scene)
-                    },
-                    success: function (response) {
-                        if (newScene) window.location.href = "/" + that._sceneId;
                     },
                     error: function(response) {
 

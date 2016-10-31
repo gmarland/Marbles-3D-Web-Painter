@@ -97,6 +97,27 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 		this._yawObject.position.z = z;
 	};
 
+	this.rotateCamera = function(x, y) {
+		this._yawObject.rotation.y += x;
+		this._pitchObject.rotation.x += y;
+
+	}
+
+	this.getCameraPosition = function() {
+		return {
+			position: {
+				x: this._yawObject.position.x,
+				y: this._yawObject.position.y,
+				z:this._yawObject.position.z
+			},
+			rotation: {
+				x: this._yawObject.rotation.y,
+				y: this._pitchObject.rotation.x
+			}
+		}
+	}
+
+
 	this.update = function( delta ) {
 		var actionOccured = false;
 
