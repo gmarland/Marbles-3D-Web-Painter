@@ -1,5 +1,9 @@
-THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
-    this.addCube = function(sceneVoxel) {
+THREE.MarbleViewEngine = function (scene) {
+	var that = this;
+
+	this._scene = scene;
+
+    this.addCube = function(sceneVoxel, voxelSize, voxels) {
         var voxelGeometry = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
         var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(sceneVoxel.color) });
 
@@ -11,7 +15,7 @@ THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
         if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
         if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
 
-        scene.add(voxelMesh);
+        that._scene.add(voxelMesh);
 
         if (voxels) {
 	        voxels.push({
@@ -29,7 +33,7 @@ THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
 	    }
     }
 
-    this.addTriangle = function(sceneVoxel) {
+    this.addTriangle = function(sceneVoxel, voxelSize, voxels) {
         var voxelGeometry = new THREE.Geometry();
 
         voxelGeometry.vertices = [
@@ -64,7 +68,7 @@ THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
         if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
         if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
 
-        scene.add(voxelMesh);
+        that._scene.add(voxelMesh);
 
         if (voxels) {
 	        voxels.push({
@@ -82,7 +86,7 @@ THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
         }
     };
 
-    this.addPyramid = function(sceneVoxel) {
+    this.addPyramid = function(sceneVoxel, voxelSize, voxels) {
         var voxelGeometry = new THREE.Geometry();
 
         voxelGeometry.vertices = [
@@ -114,7 +118,7 @@ THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
         if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
         if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
 
-        scene.add(voxelMesh);
+        that._scene.add(voxelMesh);
         
         if (voxels) {
 	        voxels.push({
@@ -132,9 +136,13 @@ THREE.MarbleViewEngine = function (sceneVoxels, voxelSize, scene, voxels) {
 	    }
     };
 
-    for (var i=0; i<sceneVoxels.length; i++) {
-    	if (sceneVoxels[i].shape == "cube") this.addCube(sceneVoxels[i]);
-    	else if (sceneVoxels[i].shape == "triangle") this.addTriangle(sceneVoxels[i]);
-    	else if (sceneVoxels[i].shape == "pyramid") this.addPyramid(sceneVoxels[i]);
-    }
+    return {
+    	loadScene: function(sceneVoxels, voxelSize, voxels) {
+		    for (var i=0; i<sceneVoxels.length; i++) {
+		    	if (sceneVoxels[i].shape == "cube") that.addCube(sceneVoxels[i], voxelSize, voxels);
+		    	else if (sceneVoxels[i].shape == "triangle") that.addTriangle(sceneVoxels[i], voxelSize, voxels);
+		    	else if (sceneVoxels[i].shape == "pyramid") that.addPyramid(sceneVoxels[i], voxelSize, voxels);
+		    }
+		}
+	}
 };

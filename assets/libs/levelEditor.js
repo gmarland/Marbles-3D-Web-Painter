@@ -16,6 +16,8 @@
 
     	this._scene = null;
 
+        this._marbleViewEngine = null;
+
 		this._raycaster = null;
 		this._mouse = null;
 
@@ -62,6 +64,8 @@
             that._containerHeight = document.body.clientHeight;
 
             that._scene = new THREE.Scene();
+
+            that._marbleViewEngine = THREE.MarbleViewEngine(that._scene);
 
 			that._raycaster = new THREE.Raycaster();
 			that._mouse = new THREE.Vector2();
@@ -573,7 +577,7 @@
                     url: "/scene/" + that._sceneId,
                     type: "GET",
                     success: function (response) {
-                        THREE.MarbleViewEngine(response, that._voxelSize, that._scene, that._voxels);
+                        that._marbleViewEngine.loadScene(response, that._voxelSize, that._voxels);
                     },
                     error: function(response) {
                     }
