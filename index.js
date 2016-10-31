@@ -53,5 +53,9 @@
 		res.sendFile(path.join(__dirname, "/views/index.html")); 
 	});	
 
-	app.get("/:id", sceneController.get);
-	app.post("/:id", sceneController.save);
+	app.get("/:id", function(req,res) { 
+		res.sendFile(path.join(__dirname, "/views/index.html")); 
+	});	
+
+	app.get("/scene/:id", sceneController.get);
+	app.post("/scene/:id", sceneController.save);

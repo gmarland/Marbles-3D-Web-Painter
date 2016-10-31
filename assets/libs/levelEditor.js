@@ -558,7 +558,17 @@
             },
 
             load: function(sceneId) {
+                that._sceneId = sceneId;
 
+                $.ajax({
+                    url: "/scene/" + that._sceneId,
+                    type: "GET",
+                    success: function (response) {
+                        THREE.MarbleViewEngine(response, that._voxelSize, that._scene, that._voxels);
+                    },
+                    error: function(response) {
+                    }
+                });
             },
 
             save: function() {
@@ -579,13 +589,13 @@
                         position: that._voxels[i].position,
                         shape: that._voxels[i].shape,
                         color: that._voxels[i].color,
-                        yRotation: that._voxels[i].xRotation,
+                        xRotation: that._voxels[i].xRotation,
                         yRotation: that._voxels[i].yRotation
                     });
                 }
 
                 $.ajax({
-                    url: "/" + that._sceneId,
+                    url: "/scene/" + that._sceneId,
                     type: "POST",
                     data: {
                         scene: JSON.stringify(scene)

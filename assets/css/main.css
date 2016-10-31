@@ -9,12 +9,26 @@ html, body {
 	z-index: 1;
 }
 
+#settings-container {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	height: 20px;
+	width: 20px;
+    background-color: #D6D6D6;
+	border-bottom: 1px solid #666666;
+	border-left: 1px solid #666666;
+    box-shadow: 0 1px 10px #373737;
+	padding: 7px;
+	z-index: 3;
+}
+
 #shape-select-container {
 	position: fixed;
 	bottom: 0px;
 	left: 0px;
 	height: 52px;
-	width: 55px;
+	width: 53px;
 	padding: 10px;
 	border-top: 1px solid #666666;
 	border-left: 1px solid #666666;

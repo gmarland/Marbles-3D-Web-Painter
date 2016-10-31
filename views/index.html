@@ -5,11 +5,15 @@
 		<script type="text/javascript" src="/third-party-libs/three.min.js"></script>
 		<script type="text/javascript" src="/third-party-libs/jscolor.js"></script>
 		<script type="text/javascript" src="/libs/FirstPersonControls.js"></script>
+		<script type="text/javascript" src="/libs/MarbleViewEngine.js"></script>
 		<script type="text/javascript" src="/libs/levelEditor.js"></script>
 	  	<link type="text/css" href="/css/main.css" rel="stylesheet" />
 	</head>
 	<body oncontextmenu="return false">
 		<div id="scene-container">
+		<div id="settings-container">
+			<img id="settings" src="/images/settings.svg" border="0" class="selectable" />
+		</div>
 		<div id="shape-select-container">
 			<div id="selected-shape-container" class="left" style="margin-left:3px;margin-top:3px;">
 				<img id="selected-shape" src="images/square.png" border="0" class="selectable" onclick="toggleShapeSelect()" />
@@ -50,21 +54,18 @@
 
 			// ---- Data access methods
 
-			function getQueryParam(name) {
-				name = name.replace(/[\[\]]/g, "\\$&");
+			function getURLParam(name) {
+				var urlParts = window.location.href.split("/");
 
-				var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-				
-				results = regex.exec(window.location.href);
-				
-				if (!results) return null;
-				
-				if (!results[2]) return '';
-				
-				return decodeURIComponent(results[2].replace(/\+/g, " "));
+				if (urlParts.length > 0) {
+					var lastElement = urlParts[urlParts.length - 1];
+
+					if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(lastElement)) return lastElement;
+					else return null;
+				}
 			}
 
-			var sceneId = getQueryParam("id");
+			var sceneId = getURLParam("id");
 
 			if (sceneId != null) levelEditor.load(sceneId);
 
