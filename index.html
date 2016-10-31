@@ -10,24 +10,24 @@
 	<body oncontextmenu="return false">
 		<div id="scene-container">
 		<div id="shape-select-container">
-			<div id="selected-shape-container" class="centered left">
+			<div id="selected-shape-container" class="left" style="margin-left:3px;margin-top:3px;">
 				<img id="selected-shape" src="images/square.png" border="0" class="selectable" onclick="toggleShapeSelect()" />
 			</div>
 			<div class="right">
 				<div class="table">
 					<div class="row">
-						<div class="cell"><img src="images/up-arrow.png" border="0" class="selectable" onclick="rotateUp()" /></div>
+						<div class="cell" style="padding-bottom:2px;"><img src="images/up-arrow.png" border="0" class="selectable" onclick="rotateUp()" /></div>
 					</div>
 					<div class="row">
-						<div class="cell"><img src="images/down-arrow.png" border="0" class="selectable" onclick="rotateDown()" /></div>
+						<div class="cell" style="padding-top:2px;"><img src="images/down-arrow.png" border="0" class="selectable" onclick="rotateDown()" /></div>
 					</div>
 				</div>
 			</div>
 			<div class="clear"></div>
-			<div class="table full">
+			<div class="table" style="margin-left:1px;">
 				<div class="row">
-					<div class="cell left-aligned"><img src="images/left-arrow.png" border="0" class="selectable" onclick="rotateLeft()" /></div>
-					<div class="cell right-aligned"><img src="images/right-arrow.png" border="0" class="selectable" onclick="rotateRight()" /></div>
+					<div class="cell left-aligned" style="padding-right:2px;"><img src="images/left-arrow.png" border="0" class="selectable" onclick="rotateLeft()" /></div>
+					<div class="cell right-aligned" style="padding-left:2px;"><img src="images/right-arrow.png" border="0" class="selectable" onclick="rotateRight()" /></div>
 				</div>
 			</div>
 			<div id="all-shapes" class="table" style="display: none;">
