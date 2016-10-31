@@ -9,7 +9,9 @@
 // Load config 
 
 	// We need the config file needs to exist. It should be JSON and have the property "path", where configs are wrote to.
-	global.dataStorage = require("./data-storage.config");
+	var dataStorageConfig = fs.readFileSync("./data-storage.config", "utf8");
+
+	global.dataStorage = JSON.parse(dataStorageConfig);
 
 	global.utils = require("./node_app/helpers/logging.js");
 

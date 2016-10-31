@@ -48,9 +48,37 @@
 			var levelEditor = (new LevelEditor());
 			levelEditor.start("scene-container", startColor);
 
+			// ---- Data access methods
+
+			function getQueryParam(name) {
+				name = name.replace(/[\[\]]/g, "\\$&");
+
+				var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				
+				results = regex.exec(window.location.href);
+				
+				if (!results) return null;
+				
+				if (!results[2]) return '';
+				
+				return decodeURIComponent(results[2].replace(/\+/g, " "));
+			}
+
+			var sceneId = getQueryParam("id");
+
+			if (sceneId != null) levelEditor.load(sceneId);
+
+			function saveScene() {
+				levelEditor.save();
+			}
+
+			// ----- Methods to set colors
+
 			function setColor(color) {	
 				levelEditor.setColor(color.toString());
 			}
+
+			// ----- Methods for managing shapes
 
 			function toggleShapeSelect() {
 				if ($("#all-shapes").is(":visible")) hideShapeSelect();
@@ -73,6 +101,8 @@
 				hideShapeSelect();
 			}
 
+			// ----- Methods for rotating a shape
+
 			function rotateLeft() {
 				levelEditor.setXRotation(-90);
 			}
@@ -88,6 +118,8 @@
 			function rotateDown() {
 				levelEditor.setYRotation(90);
 			}
+
+			// ----- Event binding
 
 			document.addEventListener('keyup', function(e) {
 				var keyCode = e.code.toLowerCase();

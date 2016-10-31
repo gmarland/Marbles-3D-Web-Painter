@@ -4,6 +4,8 @@
 
     	var that = this;
 
+        this._sceneId = null;
+
         this._clock = null;
 
     	this._containerElement = null;
@@ -553,6 +555,48 @@
 
                 if (that._yRotation === (Math.PI*2)) that._yRotation = 0;
                 else if (that._yRotation === ((Math.PI*-1)*2)) that._yRotation = 0;
+            },
+
+            load: function(sceneId) {
+
+            },
+
+            save: function() {
+                function guid() {
+                    function s4() {
+                        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+                    }
+
+                    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+                }
+
+                if (that._sceneId == null) that._sceneId = guid();
+
+                var scene = [];
+
+                for (var i=0; i<that._voxels.length; i++) {
+                    scene.push({
+                        position: that._voxels[i].position,
+                        shape: that._voxels[i].shape,
+                        color: that._voxels[i].color,
+                        yRotation: that._voxels[i].xRotation,
+                        yRotation: that._voxels[i].yRotation
+                    });
+                }
+
+                $.ajax({
+                    url: "/" + that._sceneId,
+                    type: "POST",
+                    data: {
+                        scene: JSON.stringify(scene)
+                    },
+                    success: function (response) {
+
+                    },
+                    error: function(response) {
+
+                    }
+                });
             }
     	};
     };

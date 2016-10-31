@@ -1,11 +1,12 @@
-var fs = require("fs"); 
+var path = require("path"),
+	fs = require("fs"); 
 
 exports.get = function(req, res) {
 	var sceneId = req.params.id;
 
 	var configPath = dataStorage.path + sceneId + ".json";
 
-	var configExists = path.existsSync(configPath);
+	var configExists = fs.existsSync(configPath);
 
 	if (configExists) {
 		fs.readFile(configPath, 'utf8', function (err, data) {
@@ -25,7 +26,7 @@ exports.save = function(req, res) {
 
 	var configPath = dataStorage.path + sceneId + ".json";
 
-	var configExists = path.existsSync(configPath);
+	var configExists = fs.existsSync(configPath);
 
 	if (configExists) fs.unlinkSync(configPath);
 
