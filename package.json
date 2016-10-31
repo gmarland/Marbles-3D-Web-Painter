@@ -1,0 +1,19 @@
+{
+  "name": "marble-madness",
+  "version": "1.0.0",
+  "description": "",
+  "main": "levelEditor.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gmarland/Marble-Madness-Level-Creator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gmarland/Marble-Madness-Level-Creator/issues"
+  },
+  "homepage": "https://github.com/gmarland/Marble-Madness-Level-Creator#readme"
+}
