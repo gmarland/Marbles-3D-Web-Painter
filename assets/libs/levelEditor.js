@@ -214,11 +214,11 @@
 				that._renderer.setSize(that._containerWidth, that._containerHeight);
 			}, false );
 
-			document.addEventListener('mousemove', that.repositionPositioningCube, false);
+			that._containerElement.addEventListener('mousemove', that.repositionPositioningCube, false);
 
-			document.addEventListener('mousedown', that.mouseDown, false);
+			that._containerElement.addEventListener('mousedown', that.mouseDown, false);
 
-			document.addEventListener('mouseup', that.mouseUp, false);
+			that._containerElement.addEventListener('mouseup', that.mouseUp, false);
         };
 
 
@@ -433,8 +433,9 @@
 
                             that._marbleViewEngine.loadScene(response.data);
 
-                            if (local.onLoad) local.onLoad();
+                            if (local.onLoad) local.onLoad(true);
                         }
+                        else local.onLoad(false);
                     },
                     error: function(response) {
                         if (local.onError) local.onError(response);

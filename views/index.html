@@ -12,6 +12,19 @@
 	</head>
 	<body>
 		<div id="scene-container" oncontextmenu="return false">
+		<div id="title-container" style="display: none;">
+			<div class="table full tall">
+				<div class="row">
+					<div id="title-inner-container" class="cell">
+						<h1 id="title"><i>Untitled drawing</i></h1>
+						<h2>Edit: <span id="edit-url">Unavailable</span></h2>
+						<h2>Share: <span id="share-url">Unavailable</span></h2>
+					</div>
+					<div id="close-title" class="cell selectable title-view" onclick="hideTitle()"><</div>
+				</div>
+			</div>
+		</div>
+		<div id="open-title-container" class="selectable title-view" style="display: none;" onclick="viewTitle()">></div>
 		<div id="settings-container">
 			<img id="settings" src="/images/settings.svg" border="0" class="selectable" onclick="toggleSettingsSelect();" />
 			<div id="settings-menu" class="menu" style="display: none;">
@@ -149,6 +162,8 @@
 				levelEditor.setName(name);
 				levelEditor.save();
 
+				setTitle();
+
 				closeModalDialog();
 
 				$("#edit-details-button").show();
@@ -202,7 +217,41 @@
 				levelEditor.setYRotation(90);
 			}
 
+			// ----- Title styles
+
+			function viewTitle() {
+				$("#title-container").show();
+				$("#open-title-container").hide();
+			}
+
+			function hideTitle() {
+				$("#title-container").hide();
+				$("#open-title-container").show();
+			}
+
+			function setTitle() {
+				$("#title").html(levelEditor.getName());
+				$("#edit-url").html("http://" + window.location.host + "/" + levelEditor.getId());
+				$("#share-url").html("http://" + window.location.host + "/m/" + levelEditor.getShareId());
+			}
+
+			function showTitle() {
+				$("#title-container").show();
+			}
+
 			// ----- Event binding
+
+			document.getElementById("title-container").addEventListener('mousemove', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("title-container").addEventListener('mousedown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("title-container").addEventListener('mouseup', function(e) {
+				e.stopPropagation();
+			}, false);
 
 			document.addEventListener('keyup', function(e) {
 				var keyCode = e.code.toLowerCase();
@@ -237,13 +286,20 @@
                 });
 			};
 
-			levelEditor.onLoad = function() {
-				$("#edit-details-button").show();
-				$("#settings-menu").addClass("editable");
+			levelEditor.onLoad = function(loaded) { 
+				if (loaded) {
+					$("#edit-details-button").show();
+					$("#settings-menu").addClass("editable");
+
+					setTitle();
+				}
+
+				showTitle();
 			};
 
 			var sceneId = getURLParam("id");
 			if (sceneId != null) levelEditor.load(sceneId);
+			else showTitle();
 		</script>
 	</body>
 </html>

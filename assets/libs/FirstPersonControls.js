@@ -67,7 +67,7 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 				case 69: /*E*/ this.rotateRight = true; break;
 
 				case 90: /*C*/ this.rotateDown = true; break;
-				case 67: /*Z*/ this.rotateUp = true; break;
+				case 88: /*X*/ this.rotateUp = true; break;
 			}
 		}
 	};
@@ -91,7 +91,7 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 				case 69: /*E*/ this.rotateRight = false; break;
 
 				case 90: /*C*/ this.rotateDown = false; break;
-				case 67: /*Z*/ this.rotateUp = false; break;
+				case 88: /*X*/ this.rotateUp = false; break;
 
 			}
 		}
