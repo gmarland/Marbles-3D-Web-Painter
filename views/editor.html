@@ -108,8 +108,6 @@
 				}
 			}
 
-			// ----- Saving details method
-
 			function editScene() {
 				hideSettingsSelect();
 
@@ -191,7 +189,7 @@
 				levelEditor.setYRotation(90);
 			}
 
-			// ----- Title styles
+			// ----- Methods for title manipulation
 
 			function viewTitle() {
 				$("#title-container").show();
@@ -215,6 +213,8 @@
 
 			// ----- Event binding
 
+			// Trying to stop events getting passed onto the editor
+
 			document.getElementById("title-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
@@ -234,6 +234,8 @@
 			document.getElementById("color-select-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
+
+			// Other control methods
 
 			document.addEventListener('keyup', function(e) {
 				var keyCode = e.code.toLowerCase();

@@ -1,34 +1,36 @@
-html, body {
-	margin: 0px;
-	padding: 0px;
-	font-family: 'Roboto', sans-serif;
-}
+/* Element Styles */
 
-h1 {
-	margin: 0px 0px 5px 0px;
-	padding: 0px;
-	font-size: 24px;
-}
+	html, body {
+		margin: 0px;
+		padding: 0px;
+		font-family: 'Roboto', sans-serif;
+	}
 
-h2 {
-	margin: 0px;
-	padding: 0px;
-	font-size: 12px;
-}
+	h1 {
+		margin: 0px 0px 5px 0px;
+		padding: 0px;
+		font-size: 24px;
+	}
 
-h3 {
-	margin: 0px 0px 8px 0px;
-	padding: 0px;
-}
+	h2 {
+		margin: 0px;
+		padding: 0px;
+		font-size: 12px;
+	}
 
-h4 {
-	margin: 0px 0px 5px 0px;
-	padding: 0px;
-}
+	h3 {
+		margin: 0px 0px 8px 0px;
+		padding: 0px;
+	}
 
-.error {
-	color: #ff0000;
-}
+	h4 {
+		margin: 0px 0px 5px 0px;
+		padding: 0px;
+	}
+
+	.error {
+		color: #ff0000;
+	}
 
 /* Form styles */
 
@@ -68,76 +70,82 @@ h4 {
 
 /* Modal dialog styles */
 
-#modal-dialog-overlay {
-	position: absolute;
-	top: 0px;
-	bottom: 0px;
-	left: 0px;
-	right: 0px;
-	background-color: rgba(0,0,0,0.5);
-	overflow: auto;
-	z-index: 5;
-}
+	#modal-dialog-overlay {
+		position: absolute;
+		top: 0px;
+		bottom: 0px;
+		left: 0px;
+		right: 0px;
+		background-color: rgba(0,0,0,0.5);
+		overflow: auto;
+		z-index: 5;
+	}
 
-#modal-dialog-overlay .modal-dialog {
-	position: relative;
-	width: 380px;
-	padding: 10px;
-	top: 50px;
-	left: 50%;
-	margin-left: -200px;
-	background-color: #ffffff;
-	border-radius: 3px;
-    box-shadow: 0 1px 10px #373737;
-	z-index: 7;
-}
+	#modal-dialog-overlay .modal-dialog {
+		position: relative;
+		width: 380px;
+		padding: 10px;
+		top: 50px;
+		left: 50%;
+		margin-left: -200px;
+		background-color: #ffffff;
+		border-radius: 3px;
+	    box-shadow: 0 1px 10px #373737;
+		z-index: 7;
+	}
 
-.table {
-	display: table;
-}
+/* DIV table styles */
 
-.table.full {
-	width: 100%;
-}
+	.table {
+		display: table;
+	}
 
-.table.tall {
-	min-height: 100%;
-}
+	.table.full {
+		width: 100%;
+	}
 
-.table .row {
-	display: table-row;
-}
+	.table.tall {
+		min-height: 100%;
+	}
 
-.table .row .cell {
-	display: table-cell;
-}
+	.table .row {
+		display: table-row;
+	}
 
-.left {
-	position: relative;
-	float: left;
-}
+	.table .row .cell {
+		display: table-cell;
+	}
 
-.right {
-	position: relative;
-	float: right;
-}
+/* Float styles */
 
-.clear {
-	clear: both;
-}
+	.left {
+		position: relative;
+		float: left;
+	}
 
-.centered {
-	text-align: center;
-}
+	.right {
+		position: relative;
+		float: right;
+	}
 
-.left-aligned {
-	text-align: left;
-}
+	.clear {
+		clear: both;
+	}
 
-.right-aligned {
-	text-align: right;
-}
+/* Text positioning styles */
 
-.selectable {
-	cursor: pointer;
-}
+	.centered {
+		text-align: center;
+	}
+
+	.left-aligned {
+		text-align: left;
+	}
+
+	.right-aligned {
+		text-align: right;
+	}
+
+	.selectable {
+		cursor: pointer;
+	}
