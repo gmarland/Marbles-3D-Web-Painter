@@ -1438,6 +1438,9 @@ var jsc = {
 			p.wrap.style.width = (dims[0] + 2 * THIS.borderWidth) + 'px';
 			p.wrap.style.height = (dims[1] + 2 * THIS.borderWidth) + 'px';
 			p.wrap.style.zIndex = THIS.zIndex;
+			p.wrap.onclick = function(e) {
+				e.stopPropagation();
+			}
 			
 			// picker
 			p.box.style.width = dims[0] + 'px';

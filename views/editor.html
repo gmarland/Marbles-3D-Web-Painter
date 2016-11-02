@@ -215,15 +215,19 @@
 
 			// ----- Event binding
 
-			document.getElementById("title-container").addEventListener('mousemove', function(e) {
-				e.stopPropagation();
-			}, false);
-
 			document.getElementById("title-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
 
-			document.getElementById("title-container").addEventListener('mouseup', function(e) {
+			document.getElementById("open-title-container").addEventListener('mousedown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("settings-container").addEventListener('mousedown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("shape-select-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
 
