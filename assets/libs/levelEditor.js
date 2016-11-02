@@ -5,6 +5,7 @@
     	var that = this;
 
         this._sceneId = null;
+        this._shareId = null;
 
         this._sceneName = null;
 
@@ -328,6 +329,7 @@
 
     	return {
             onError: null,
+            onLoad: null,
 
     		start: function(container, startColor) {
                 that._selectedColor = startColor;
@@ -339,6 +341,10 @@
 
             getId: function() {
                 return that._sceneId;
+            },
+
+            getShareId: function() {
+                return that._shareId;
             },
 
             getName: function() {
@@ -420,9 +426,15 @@
                     url: "/scene/" + that._sceneId,
                     type: "GET",
                     success: function (response) {
-                        that._sceneName = response.name;
+                        if ((response != null) && (typeof response === 'object')) {
+                            that._sceneName = response.name;
 
-                        that._marbleViewEngine.loadScene(response.data);
+                            that._shareId = response.shareId;
+
+                            that._marbleViewEngine.loadScene(response.data);
+
+                            if (local.onLoad) local.onLoad();
+                        }
                     },
                     error: function(response) {
                         if (local.onError) local.onError(response);
@@ -443,13 +455,15 @@
 
                 if (that._sceneId == null) that._sceneId = guid();
 
+                if (that._shareId == null) that._shareId = guid();
+
                 $.ajax({
-                    url: "/scene/" + that._sceneId,
+                    url: "/scene/" + that._sceneId + "/" + that._shareId,
                     type: "POST",
                     data: {
                         scene: JSON.stringify({
+                            shareId: that._shareId,
                             name: that._sceneName,
-
                             data: that._marbleViewEngine.getScene()
                         })
                     },

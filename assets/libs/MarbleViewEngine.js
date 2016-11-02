@@ -142,11 +142,13 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 
     return {
     	loadScene: function(sceneVoxels) {
-		    for (var i=0; i<sceneVoxels.length; i++) {
-		    	if (sceneVoxels[i].shape == "cube") that.addCube(sceneVoxels[i]);
-		    	else if (sceneVoxels[i].shape == "triangle") that.addTriangle(sceneVoxels[i]);
-		    	else if (sceneVoxels[i].shape == "pyramid") that.addPyramid(sceneVoxels[i]);
-		    }
+            if (sceneVoxels) {
+    		    for (var i=0; i<sceneVoxels.length; i++) {
+    		    	if (sceneVoxels[i].shape == "cube") that.addCube(sceneVoxels[i]);
+    		    	else if (sceneVoxels[i].shape == "triangle") that.addTriangle(sceneVoxels[i]);
+    		    	else if (sceneVoxels[i].shape == "pyramid") that.addPyramid(sceneVoxels[i]);
+    		    }
+            }
 		},
 
 		getScene: function() {

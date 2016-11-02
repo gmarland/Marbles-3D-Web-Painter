@@ -36,13 +36,17 @@ h4 {
 
 #settings-menu {
 	position: absolute;
-	bottom: -62px;
+	bottom: -37px;
 	right: 0px;
-	width: 200px;
+	width: 150px;
 	border: 1px solid #666666;
     box-shadow: 0 1px 10px #373737;
     background-color: #D6D6D6;
     padding: 2px 0px 2px 0px;
+}
+
+#settings-menu.editable {
+	bottom: -62px;
 }
 
 #settings-menu > div {

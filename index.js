@@ -13,7 +13,8 @@
 
 	global.dataStorage = JSON.parse(dataStorageConfig);
 
-	global.utils = require("./node_app/helpers/logging.js");
+	global.logging = require("./node_app/helpers/logging.js");
+	global.textHelper = require("./node_app/helpers/text.js");
 
 // Instantiate Express
 
@@ -57,8 +58,8 @@
 		res.sendFile(path.join(__dirname, "/views/index.html")); 
 	});	
 
-	app.get("/scene/:id", sceneController.get);
-	app.post("/scene/:id", sceneController.save);
+	app.get("/scene/:id", sceneController.getById);
+	app.post("/scene/:id/:shareId", sceneController.save);
 
 // Dialog retrieval
 
