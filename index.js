@@ -51,11 +51,11 @@
 // HTML returning routes
 
 	app.get("/", function(req,res) { 
-		res.sendFile(path.join(__dirname, "/views/index.html")); 
+		res.sendFile(path.join(__dirname, "/views/editor.html")); 
 	});	
 
 	app.get("/:id", function(req,res) { 
-		res.sendFile(path.join(__dirname, "/views/index.html")); 
+		res.sendFile(path.join(__dirname, "/views/editor.html")); 
 	});	
 
 	app.get("/scene/:id", sceneController.getById);
