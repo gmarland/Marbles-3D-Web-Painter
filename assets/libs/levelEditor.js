@@ -339,6 +339,10 @@
 
             // ----- Property Accessors
 
+            getIsSaved: function() {
+                return (that._sceneId === null);
+            },
+
             getId: function() {
                 return that._sceneId;
             },

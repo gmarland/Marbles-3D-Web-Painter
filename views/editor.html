@@ -9,6 +9,7 @@
 		<script type="text/javascript" src="/libs/levelEditor.js"></script>
 		<script type="text/javascript" src="/libs/general.js"></script>
 		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	  	<link type="text/css" href="/css/site.css" rel="stylesheet" />
 	  	<link type="text/css" href="/css/main.css" rel="stylesheet" />
 	</head>
 	<body>
@@ -128,8 +129,7 @@
 			}
 
 			function updateScene(name) {
-				var isNewSave = false;
-				if (levelEditor.getId() == null) isNewSave = true;
+				var isNewSave = levelEditor.getIsSaved();
 
 				levelEditor.setName(name);
 				levelEditor.save();

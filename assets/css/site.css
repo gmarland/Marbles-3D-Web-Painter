@@ -1,0 +1,139 @@
+html, body {
+	margin: 0px;
+	padding: 0px;
+	font-family: 'Roboto', sans-serif;
+}
+
+h1 {
+	margin: 0px 0px 5px 0px;
+	padding: 0px;
+	font-size: 24px;
+}
+
+h2 {
+	margin: 0px;
+	padding: 0px;
+	font-size: 12px;
+}
+
+h3 {
+	margin: 0px 0px 8px 0px;
+	padding: 0px;
+}
+
+h4 {
+	margin: 0px 0px 5px 0px;
+	padding: 0px;
+}
+
+/* Form styles */
+
+	.form .input-container {
+
+	}
+
+	.form input[type="text"] {
+		width: 100%;
+		padding: 4px;
+	}
+
+	.form button, .form input[type=submit], .form input[type=button], .form .button {
+		padding-top: 4px;
+		padding-bottom: 4px;
+		padding-left: 10px;
+		padding-right: 10px;
+		font-size: 13px;
+		font-weight: bold;
+		color: #444444;
+		border-top: 1px solid #cecece;
+		border-bottom: 1px solid #a0a0a0;
+		border-left: 1px solid #cecece;
+		border-right: 1px solid #cecece;
+		-webkit-border-radius: 3px;
+		-moz-border-radius: 3px;
+		border-radius: 3px;
+		background-color: #FEFEFE;
+		background-image: -moz-linear-gradient(top, #FEFEFE, #F3F3F3);
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#FEFEFE), to(#F3F3F3));
+		background-image: -webkit-linear-gradient(top, #FEFEFE, #F3F3F3);
+		background-image: -o-linear-gradient(top, #FEFEFE, #F3F3F3);
+		background-image: linear-gradient(to bottom, #FEFEFE, #F3F3F3);
+		background-repeat: repeat-x;
+		cursor: pointer;
+	}
+
+/* Modal dialog styles */
+
+#modal-dialog-overlay {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	background-color: rgba(0,0,0,0.5);
+	overflow: auto;
+	z-index: 5;
+}
+
+#modal-dialog-overlay .modal-dialog {
+	position: relative;
+	width: 380px;
+	padding: 10px;
+	top: 50px;
+	left: 50%;
+	margin-left: -200px;
+	background-color: #ffffff;
+	border-radius: 3px;
+    box-shadow: 0 1px 10px #373737;
+	z-index: 7;
+}
+
+.table {
+	display: table;
+}
+
+.table.full {
+	width: 100%;
+}
+
+.table.tall {
+	min-height: 100%;
+}
+
+.table .row {
+	display: table-row;
+}
+
+.table .row .cell {
+	display: table-cell;
+}
+
+.left {
+	position: relative;
+	float: left;
+}
+
+.right {
+	position: relative;
+	float: right;
+}
+
+.clear {
+	clear: both;
+}
+
+.centered {
+	text-align: center;
+}
+
+.left-aligned {
+	text-align: left;
+}
+
+.right-aligned {
+	text-align: right;
+}
+
+.selectable {
+	cursor: pointer;
+}
