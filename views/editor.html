@@ -63,7 +63,7 @@
 				</div>
 			</div>
 		</div>
-		<div id="color-select-container"><input type="button" id="color-select" class="jscolor" onchange="setColor(this.jscolor)" /></div>
+		<div id="color-select-container"><input type="button" id="color-select" class="jscolor" onclick="document.getElementById('color-select').jscolor.show()" onchange="setColor(this.jscolor)" /></div>
 		<div id="modal-dialog-overlay" style="display: none;"></div>
 		<script type="text/javascript">	
 			// ----- Methods for the setting menu
@@ -228,6 +228,10 @@
 			}, false);
 
 			document.getElementById("shape-select-container").addEventListener('mousedown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("color-select-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
 
