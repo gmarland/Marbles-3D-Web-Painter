@@ -6,13 +6,13 @@
 
         this._sceneId = null;
 
+        this._sceneName = null;
+
         this._clock = null;
 
     	this._containerElement = null;
     	this._containerWidth = null;
     	this._containerHeight = null;
-
-        this._keepRenderingScene = true;
 
     	this._scene = null;
 
@@ -35,6 +35,8 @@
         this._basePlane = null;
         this._baseGrid = null;
 
+        this._baseColor = null;
+
         this._positioningCube = null;
 
         this._voxelSize = 10;
@@ -50,8 +52,6 @@
         this._xRotation = 0;
         this._yRotation = 0;
 
-        this._voxels = [];
-
         // -----
 
         // ----- Constructor
@@ -65,7 +65,7 @@
 
             that._scene = new THREE.Scene();
 
-            that._marbleViewEngine = THREE.MarbleViewEngine(that._scene);
+            that._marbleViewEngine = THREE.MarbleViewEngine(that._scene, that._voxelSize);
 
 			that._raycaster = new THREE.Raycaster();
 			that._mouse = new THREE.Vector2();
@@ -192,7 +192,7 @@
             };
 
             function renderScene() {
-                if (that._keepRenderingScene) requestAnimationFrame( renderScene );
+                requestAnimationFrame( renderScene );
 
                 updateScene();
 
@@ -224,54 +224,60 @@
 
 
 		this.repositionPositioningCube = function(event) {
-			if (event) {
-				event.preventDefault();
+            if (that._controls.enabled) {
+    			if (event) {
+    				event.preventDefault();
 
-				that._mouse.set((event.clientX/window.innerWidth)*2-1, -(event.clientY/window.innerHeight )*2+1);
-			}
+    				that._mouse.set((event.clientX/window.innerWidth)*2-1, -(event.clientY/window.innerHeight )*2+1);
+    			}
 
-			that._raycaster.setFromCamera(that._mouse, that._camera);
+    			that._raycaster.setFromCamera(that._mouse, that._camera);
 
-			var intersects = that._raycaster.intersectObject(that._basePlane);
+    			var intersects = that._raycaster.intersectObject(that._basePlane);
 
-			if ( intersects.length > 0 ) {
-				that._positioningCube.visible = true;
+    			if ( intersects.length > 0 ) {
+    				that._positioningCube.visible = true;
 
-				var intersect = intersects[0];
+    				var intersect = intersects[0];
 
-				that._positioningCube.position.copy( intersect.point ).add( intersect.face.normal );
-				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
+    				that._positioningCube.position.copy( intersect.point ).add( intersect.face.normal );
+    				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
 
-				if (that._isPainting) that.paint();
-                else if (that._isErasing) that.erase();
-			}
-			else that._positioningCube.visible = false;
+    				if (that._isPainting) that.paint();
+                    else if (that._isErasing) that.erase();
+    			}
+    			else that._positioningCube.visible = false;
+            }
 		};
 
 		this.mouseDown = function(event) {
-            event.preventDefault();
+            if (that._controls.enabled) {
+                event.preventDefault();
 
-            if (that.getIsLeftMouseButton(event)) {
-                that._isPainting = true;
+                if (that.getIsLeftMouseButton(event)) {
+                    that._isPainting = true;
 
-                that.paint();
+                    that.paint();
+                }
+                else if (that.getIsRightMouseButton(event)) {
+                    that._isErasing = true;
+
+                    that.erase();
+                }
+
+                return false;
             }
-            else if (that.getIsRightMouseButton(event)) {
-                that._isErasing = true;
-
-                that.erase();
-            }
-
-            return false;
 		};
 
 		this.mouseUp = function(event) {
-            event.preventDefault();
+            if (that._controls.enabled) {
+                event.preventDefault();
 
-            if (that.getIsLeftMouseButton(event)) that._isPainting = false;
-            else if (that.getIsRightMouseButton(event)) that._isErasing = false;
+                if (that.getIsLeftMouseButton(event)) that._isPainting = false;
+                else if (that.getIsRightMouseButton(event)) that._isErasing = false;
 
-            return false;
+                return false;
+            }
 		};
 
         this.getIsLeftMouseButton = function(event) {
@@ -301,193 +307,20 @@
                     y: that._positioningCube.position.y,
                     z: that._positioningCube.position.z
                 };
-                
-                var spacePosition = {
-                    x: ((position.x-(that._voxelSize/2))/that._voxelSize),
-                    y: ((position.y-(that._voxelSize/2))/that._voxelSize),
-                    z: ((position.z-(that._voxelSize/2))/that._voxelSize)
+
+                that._marbleViewEngine.paint(that._selectedShape, position, that._selectedColor, that._xRotation, that._yRotation);
+            }
+        };
+
+        this.erase = function() {
+            if (that._positioningCube.visible) {
+                var position = {
+                    x: that._positioningCube.position.x,
+                    y: that._positioningCube.position.y,
+                    z: that._positioningCube.position.z
                 };
 
-                var positionExists = false;
-
-                for (var i=0; i<that._voxels.length; i++) {
-                    if ((that._voxels[i].position.x === spacePosition.x) &&
-                        (that._voxels[i].position.y === spacePosition.y) && 
-                        (that._voxels[i].position.z === spacePosition.z)) {
-                        positionExists = true;
-
-                        break;
-                    }
-                }
-
-                if (positionExists) that.erase(position);
-
-                if (that._selectedShape.toLowerCase() == "square") that._voxels.push(that.addCube(position, spacePosition));
-                else if (that._selectedShape.toLowerCase() == "triangle") that._voxels.push(that.addTriangle(position, spacePosition));
-                else if (that._selectedShape.toLowerCase() == "pyramid") that._voxels.push(that.addPyramid(position, spacePosition));
-            }
-        };
-
-        this.addCube = function(position, spacePosition) {
-            var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
-            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
-
-            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-            voxelMesh.position.x = position.x;
-            voxelMesh.position.y = position.y;
-            voxelMesh.position.z = position.z;
-
-            voxelMesh.rotation.y = that._xRotation;
-            voxelMesh.rotation.x = that._yRotation;
-
-            that._scene.add(voxelMesh);
-
-            return {
-                position: {
-                    x: spacePosition.x,
-                    y: spacePosition.y,
-                    z: spacePosition.z
-                },
-                shape: "cube",
-                color: that._selectedColor,
-                xRotation: that._xRotation,
-                yRotation: that._yRotation,
-                mesh: voxelMesh
-            };
-        }
-
-        this.addTriangle = function(position, spacePosition) {
-            var voxelGeometry = new THREE.Geometry();
-
-            voxelGeometry.vertices = [
-                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
-                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)*-1)
-            ];
-
-            voxelGeometry.faces = [
-                new THREE.Face3( 5, 1, 0),
-                new THREE.Face3( 4, 2, 1),
-                new THREE.Face3( 1, 5, 4),
-                new THREE.Face3( 4, 3, 2),
-                new THREE.Face3( 4, 0, 3),
-                new THREE.Face3( 4, 5, 0),
-                new THREE.Face3( 0, 1, 3),
-                new THREE.Face3( 1, 2, 3)
-            ];    
-
-            voxelGeometry.computeFaceNormals();
-
-            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
-
-            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-            voxelMesh.position.x = position.x;
-            voxelMesh.position.y = position.y;
-            voxelMesh.position.z = position.z;
-
-            voxelMesh.rotation.y = that._xRotation;
-            voxelMesh.rotation.x = that._yRotation;
-
-            that._scene.add(voxelMesh);
-
-            return {
-                position: {
-                    x: spacePosition.x,
-                    y: spacePosition.y,
-                    z: spacePosition.z
-                },
-                shape: "triangle",
-                color: that._selectedColor,
-                xRotation: that._xRotation,
-                yRotation: that._yRotation,
-                mesh: voxelMesh
-            };
-        };
-
-        this.addPyramid = function(position, spacePosition) {
-            var voxelGeometry = new THREE.Geometry();
-
-            voxelGeometry.vertices = [
-                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
-                new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
-                new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
-                new THREE.Vector3( 0, (that._voxelSize/2), 0)
-            ];
-
-            voxelGeometry.faces = [
-                new THREE.Face3( 4, 1, 0),
-                new THREE.Face3( 4, 2, 1),
-                new THREE.Face3( 4, 3, 2),
-                new THREE.Face3( 4, 0, 3),
-                new THREE.Face3( 0, 1, 3),
-                new THREE.Face3( 1, 2, 3)
-            ];    
-
-            voxelGeometry.computeFaceNormals();
-
-            var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(that._selectedColor) });
-
-            var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-            voxelMesh.position.x = position.x;
-            voxelMesh.position.y = position.y;
-            voxelMesh.position.z = position.z;
-
-            voxelMesh.rotation.y = that._xRotation;
-            voxelMesh.rotation.x = that._yRotation;
-
-            that._scene.add(voxelMesh);
-
-            return {
-                position: {
-                    x: spacePosition.x,
-                    y: spacePosition.y,
-                    z: spacePosition.z
-                },
-                shape: "pyramid",
-                color: that._selectedColor,
-                xRotation: that._xRotation,
-                yRotation: that._yRotation,
-                mesh: voxelMesh
-            };
-        };
-
-        this.erase = function(spacePosition) {
-            var position = null;
-
-            if (spacePosition != null) {
-                position = spacePosition;
-            }
-            else {
-                if (that._positioningCube.visible) {
-                    var position = {
-                        x: that._positioningCube.position.x,
-                        y: that._positioningCube.position.y,
-                        z: that._positioningCube.position.z
-                    };
-                }
-            }
-
-            if (position !== null) {
-                var spacePosition = {
-                    x: ((position.x-(that._voxelSize/2))/that._voxelSize),
-                    y: ((position.y-(that._voxelSize/2))/that._voxelSize),
-                    z: ((position.z-(that._voxelSize/2))/that._voxelSize)
-                };
-
-                for (var i=(that._voxels.length-1); i>=0; i--) {
-                    if ((that._voxels[i].position.x === spacePosition.x) &&
-                        (that._voxels[i].position.y === spacePosition.y) && 
-                        (that._voxels[i].position.z === spacePosition.z)) {
-                        that._scene.remove(that._voxels[i].mesh);;
-
-                        that._voxels.splice(i,1);
-                        break;
-                    }
-                }
+                that._marbleViewEngine.erase(position);
             }
         };
 
@@ -496,23 +329,49 @@
         };
 
     	return {
+            onError: null,
+
     		start: function(container, startColor) {
                 that._selectedColor = startColor;
 
     			that.init(container);
     		},
 
-	        // ----- Public Methods
+            // ----- Property Accessors
 
-	        startRendering: function() {
-	            that._keepRenderingScene = true;
+            getId: function() {
+                return that._sceneId;
+            },
 
-	            render();
-	        },
+            getName: function() {
+                return that._sceneName;
+            },
 
-	        stopRendering: function() {
-	            that._keepRenderingScene = false;
-	        },
+            setName: function(name) {
+                that._sceneName = name;
+            },
+
+            setControlsEnabled: function(enabled) {
+                that._controls.enabled = enabled;
+            },
+
+            getSkyboxColor: function() {
+                return that._skyboxColor;
+            },
+
+            setSkyboxColor: function(color) {
+                that._skyboxColor = color;
+
+                that._renderer.setClearColor(color, that._skyboxOpacity);
+            },
+
+            getBaseColor: function() {
+                return that._baseColor;
+            },
+
+            setBaseColor: function(color) {
+                that._baseColor = name;
+            },
 
             setCameraPosition: function(position) {
                 that._controls.setCameraPosition(position.x, position.y, position.z);
@@ -527,7 +386,7 @@
 	        },
 
 	        setLevel: function(level) {
-	        	if (level >= 0) {
+	        	if ((that._controls.enabled) && (level >= 0)) {
 			    	that._basePlane.position.y = (level*that._voxelSize);
 			    	that._baseGrid.position.y = (level*that._voxelSize);
 
@@ -570,16 +429,23 @@
                 else if (that._yRotation === ((Math.PI*-1)*2)) that._yRotation = 0;
             },
 
+            // ----- Public Methods
+
             load: function(sceneId) {
+                var local = this;
+
                 that._sceneId = sceneId;
 
                 $.ajax({
                     url: "/scene/" + that._sceneId,
                     type: "GET",
                     success: function (response) {
-                        that._marbleViewEngine.loadScene(response, that._voxelSize, that._voxels);
+                        that._sceneName = response.name;
+
+                        that._marbleViewEngine.loadScene(response.data);
                     },
                     error: function(response) {
+                        if (local.onError) local.onError(response);
                     }
                 });
             },
@@ -593,28 +459,22 @@
                     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
                 }
 
+                var local = this;
+
                 if (that._sceneId == null) that._sceneId = guid();
-
-                var scene = [];
-
-                for (var i=0; i<that._voxels.length; i++) {
-                    scene.push({
-                        position: that._voxels[i].position,
-                        shape: that._voxels[i].shape,
-                        color: that._voxels[i].color,
-                        xRotation: that._voxels[i].xRotation,
-                        yRotation: that._voxels[i].yRotation
-                    });
-                }
 
                 $.ajax({
                     url: "/scene/" + that._sceneId,
                     type: "POST",
                     data: {
-                        scene: JSON.stringify(scene)
+                        scene: JSON.stringify({
+                            name: that._sceneName,
+
+                            data: that._marbleViewEngine.getScene()
+                        })
                     },
                     error: function(response) {
-
+                        if (local.onError) local.onError(response);
                     }
                 });
             }

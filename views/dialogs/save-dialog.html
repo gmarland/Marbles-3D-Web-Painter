@@ -1,0 +1,15 @@
+<script type="text/javascript">
+	function completeDialog() {
+		saveNewScene($("#new-scene-name").val());
+	}
+</script>
+
+<div id="save-dialog" class="modal-dialog">
+	<h3>Save</h3>
+	<h4>Name</h4>
+	<div><input type="text" id="new-scene-name" /></div>
+	<br/>
+	<div class="left"><button onclick="closeModalDialog();">Close</button></div>
+	<div class="right"><button onclick="completeDialog();">Save</button></div>
+	<div class="clear"></div>
+</div>

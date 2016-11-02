@@ -59,3 +59,17 @@
 
 	app.get("/scene/:id", sceneController.get);
 	app.post("/scene/:id", sceneController.save);
+
+// Dialog retrieval
+
+	app.get("/dialogs/error", function(req,res) { 
+		res.sendFile(path.join(__dirname, "/views/dialogs/error-message.html")); 
+	});
+
+	app.get("/dialogs/edit", function(req,res) { 
+		res.sendFile(path.join(__dirname, "/views/dialogs/edit-dialog.html")); 
+	});
+
+	app.get("/dialogs/save", function(req,res) { 
+		res.sendFile(path.join(__dirname, "/views/dialogs/save-dialog.html")); 
+	});

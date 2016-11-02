@@ -1,6 +1,17 @@
 html, body {
 	margin: 0px;
 	padding: 0px;
+	font-family: 'Roboto', sans-serif;
+}
+
+h3 {
+	margin: 0px 0px 8px 0px;
+	padding: 0px;
+}
+
+h4 {
+	margin: 0px 0px 5px 0px;
+	padding: 0px;
 }
 
 #scene-container {
@@ -21,6 +32,26 @@ html, body {
     box-shadow: 0 1px 10px #373737;
 	padding: 7px;
 	z-index: 3;
+}
+
+#settings-menu {
+	position: absolute;
+	bottom: -62px;
+	right: 0px;
+	width: 200px;
+	border: 1px solid #666666;
+    box-shadow: 0 1px 10px #373737;
+    background-color: #D6D6D6;
+    padding: 2px 0px 2px 0px;
+}
+
+#settings-menu > div {
+    padding: 3px 5px 3px 5px;
+    cursor: pointer;
+}
+
+#settings-menu > div:hover {
+	background-color: #ffffff;
 }
 
 #shape-select-container {
@@ -70,6 +101,30 @@ html, body {
     text-indent: 100px;
     white-space: nowrap;
     overflow: hidden;
+}
+
+#modal-dialog-overlay {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	background-color: rgba(0,0,0,0.5);
+	overflow: auto;
+	z-index: 5;
+}
+
+#modal-dialog-overlay .modal-dialog {
+	position: relative;
+	width: 380px;
+	padding: 10px;
+	top: 50px;
+	left: 50%;
+	margin-left: -200px;
+	background-color: #ffffff;
+	border-radius: 3px;
+    box-shadow: 0 1px 10px #373737;
+	z-index: 7;
 }
 
 .table {

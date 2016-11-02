@@ -1,4 +1,6 @@
 THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
+	this.enabled = true;
+
 	this._movementSpeed = 10;
 
 	this._moveFunction = moveFunction;
@@ -19,11 +21,11 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 	this._scene.add(this._yawObject);
 
 	this.onMouseDown = function ( event ) {
-		if(getIsMiddleMouseButton(event)) this.moveCamera = true;
+		if ((this.enabled) && (getIsMiddleMouseButton(event))) this.moveCamera = true;
 	};
 
 	this.onMouseUp = function ( event ) {
-		if(getIsMiddleMouseButton(event)) this.moveCamera = false;
+		if ((this.enabled) && (getIsMiddleMouseButton(event))) this.moveCamera = false;
 	};
 
     function getIsMiddleMouseButton(event) {
@@ -47,47 +49,51 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 	};
 
 	this.onKeyDown = function ( event ) {
-		switch ( event.keyCode ) {
+		if (this.enabled) {
+			switch ( event.keyCode ) {
 
-			case 87: /*W*/ this.moveForward = true; break;
+				case 87: /*W*/ this.moveForward = true; break;
 
-			case 65: /*A*/ this.moveLeft = true; break;
+				case 65: /*A*/ this.moveLeft = true; break;
 
-			case 83: /*S*/ this.moveBackward = true; break;
+				case 83: /*S*/ this.moveBackward = true; break;
 
-			case 68: /*D*/ this.moveRight = true; break;
+				case 68: /*D*/ this.moveRight = true; break;
 
-			case 82: /*R*/ this.moveUp = true; break;
-			case 70: /*F*/ this.moveDown = true; break;
+				case 82: /*R*/ this.moveUp = true; break;
+				case 70: /*F*/ this.moveDown = true; break;
 
-			case 81: /*Q*/ this.rotateLeft = true; break;
-			case 69: /*E*/ this.rotateRight = true; break;
+				case 81: /*Q*/ this.rotateLeft = true; break;
+				case 69: /*E*/ this.rotateRight = true; break;
 
-			case 90: /*C*/ this.rotateDown = true; break;
-			case 67: /*Z*/ this.rotateUp = true; break;
+				case 90: /*C*/ this.rotateDown = true; break;
+				case 67: /*Z*/ this.rotateUp = true; break;
+			}
 		}
 	};
 
 	this.onKeyUp = function ( event ) {
-		switch ( event.keyCode ) {
+		if (this.enabled) {
+			switch ( event.keyCode ) {
 
-			case 87: /*W*/ this.moveForward = false; break;
+				case 87: /*W*/ this.moveForward = false; break;
 
-			case 65: /*A*/ this.moveLeft = false; break;
+				case 65: /*A*/ this.moveLeft = false; break;
 
-			case 83: /*S*/ this.moveBackward = false; break;
+				case 83: /*S*/ this.moveBackward = false; break;
 
-			case 68: /*D*/ this.moveRight = false; break;
+				case 68: /*D*/ this.moveRight = false; break;
 
-			case 82: /*R*/ this.moveUp = false; break;
-			case 70: /*F*/ this.moveDown = false; break;
+				case 82: /*R*/ this.moveUp = false; break;
+				case 70: /*F*/ this.moveDown = false; break;
 
-			case 81: /*Q*/ this.rotateLeft = false; break;
-			case 69: /*E*/ this.rotateRight = false; break;
+				case 81: /*Q*/ this.rotateLeft = false; break;
+				case 69: /*E*/ this.rotateRight = false; break;
 
-			case 90: /*C*/ this.rotateDown = false; break;
-			case 67: /*Z*/ this.rotateUp = false; break;
+				case 90: /*C*/ this.rotateDown = false; break;
+				case 67: /*Z*/ this.rotateUp = false; break;
 
+			}
 		}
 	};
 

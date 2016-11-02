@@ -7,12 +7,17 @@
 		<script type="text/javascript" src="/libs/FirstPersonControls.js"></script>
 		<script type="text/javascript" src="/libs/MarbleViewEngine.js"></script>
 		<script type="text/javascript" src="/libs/levelEditor.js"></script>
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	  	<link type="text/css" href="/css/main.css" rel="stylesheet" />
 	</head>
-	<body oncontextmenu="return false">
-		<div id="scene-container">
+	<body>
+		<div id="scene-container" oncontextmenu="return false">
 		<div id="settings-container">
-			<img id="settings" src="/images/settings.svg" border="0" class="selectable" />
+			<img id="settings" src="/images/settings.svg" border="0" class="selectable" onclick="toggleSettingsSelect();" />
+			<div id="settings-menu" class="menu" style="display: none;">
+				<div id="edit-details-button">Edit Details</div>
+				<div id="save-btn" onclick="saveScene();">Save</div>
+			</div>
 		</div>
 		<div id="shape-select-container">
 			<div id="selected-shape-container" class="left" style="margin-left:3px;margin-top:3px;">
@@ -35,7 +40,7 @@
 					<div class="cell right-aligned" style="padding-left:2px;"><img src="images/right-arrow.png" border="0" class="selectable" onclick="rotateRight()" /></div>
 				</div>
 			</div>
-			<div id="all-shapes" class="table" style="display: none;">
+			<div id="all-shapes" class="table menu" style="display: none;">
 				<div class="row">
 					<div class="cell centered"><img src="images/square.png" border="0" class="selectable" onclick="setShape('square')" /></div>
 					<div class="cell centered"><img src="images/triangle.png" border="0" class="selectable" onclick="setShape('triangle')" /></div>
@@ -44,13 +49,29 @@
 			</div>
 		</div>
 		<div id="color-select-container"><input type="button" id="color-select" class="jscolor" onchange="setColor(this.jscolor)" /></div>
+		<div id="modal-dialog-overlay" style="display: none;"></div>
 		<script type="text/javascript">	
 			var startColor = "#ff0000";
 
 			$("#color-select").val(startColor);
 
 			var levelEditor = (new LevelEditor());
+
 			levelEditor.start("scene-container", startColor);
+			
+			levelEditor.onError = function getErrorMessage(message) {
+                $.ajax({
+                    url: "/dialogs/error",
+                    type: "GET",
+                    success: function (response) {
+						$("#modal-dialog-overlay").html(response);
+
+						$("#error-message").html(message);
+
+						$("#modal-dialog-overlay").show();
+                    }
+                });
+			};
 
 			// ---- Data access methods
 
@@ -88,8 +109,59 @@
 
 			if (sceneId != null) levelEditor.load(sceneId);
 
+			// ----- Methods for the setting menu
+
+			function toggleSettingsSelect() {
+				if ($("#settings-menu").is(":visible")) hideSsettingsSelect();
+				else openSettingsSelect();
+			}
+
+			function openSettingsSelect() {
+				$("#settings-menu").show();	
+			}
+
+			function hideSsettingsSelect() {
+				$("#settings-menu").hide();
+			}
+
+			function closeModalDialog() {
+				$("#modal-dialog-overlay").empty();
+				$("#modal-dialog-overlay").hide();
+
+				levelEditor.setControlsEnabled(true);
+			}
+
+			// ----- Saving scene method
+
 			function saveScene() {
+				hideSsettingsSelect();
+
+				if (levelEditor.getId() != null) levelEditor.save();
+				else {
+					levelEditor.setControlsEnabled(false);
+
+	                $.ajax({
+	                    url: "/dialogs/save",
+	                    type: "GET",
+	                    success: function (response) {
+							$("#modal-dialog-overlay").html(response);
+							$("#modal-dialog-overlay").show();
+	                    }
+	                });
+				}
+			}
+
+			function saveNewScene(name) {
+				levelEditor.setName(name);
 				levelEditor.save();
+
+				closeModalDialog();
+			}
+
+			// ----- Saving details method
+
+			function updateScene() {
+
 			}
 
 			// ----- Methods to set colors
