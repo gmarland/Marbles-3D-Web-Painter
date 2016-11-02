@@ -1,12 +1,15 @@
 <script type="text/javascript">
 	function completeDialog() {
-		updateScene($("#new-scene-name").val());
+		var name = $("#new-scene-name").val();
+
+		if (name.length > 0) updateScene(name);
+		else $("#name-validation").show()
 	}
 </script>
 
 <div id="save-dialog" class="modal-dialog">
 	<h3>Save</h3>
-	<h4>Name</h4>
+	<h4>Name<span id="name-validation" class="error" style="display: none;"> * Required</span></h4>
 	<div class="form">
 		<div><input type="text" id="new-scene-name" /></div>
 		<br/>
