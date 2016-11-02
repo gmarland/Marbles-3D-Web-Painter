@@ -18,8 +18,8 @@
 				<div class="row">
 					<div id="title-inner-container" class="cell">
 						<h1 id="title"><i>Untitled drawing</i></h1>
-						<h2>Edit: <span id="edit-url">Unavailable</span></h2>
-						<h2>Share: <span id="share-url">Unavailable</span></h2>
+						<h2>Edit: <span id="edit-url">Not saved</span></h2>
+						<h2>Share: <span id="share-url">Not saved</span></h2>
 					</div>
 					<div id="close-title" class="cell selectable title-view" onclick="hideTitle()"><</div>
 				</div>
@@ -128,8 +128,13 @@
 			}
 
 			function updateScene(name) {
+				var isNewSave = false;
+				if (levelEditor.getId() == null) isNewSave = true;
+
 				levelEditor.setName(name);
 				levelEditor.save();
+
+				if (isNewSave) window.history.pushState("object or string", "Saved", "/" + levelEditor.getId());
 
 				setTitle();
 
@@ -229,7 +234,6 @@
 				if (keyCode == "arrowup") levelEditor.setLevel((level+1));
 				else if (keyCode == "arrowdown") levelEditor.setLevel((level-1));
 			}, false);
-
 
 			// Initialize the editor
 
