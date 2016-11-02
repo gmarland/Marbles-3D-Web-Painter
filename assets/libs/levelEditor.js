@@ -35,8 +35,6 @@
         this._basePlane = null;
         this._baseGrid = null;
 
-        this._baseColor = null;
-
         this._positioningCube = null;
 
         this._voxelSize = 10;
@@ -353,24 +351,6 @@
 
             setControlsEnabled: function(enabled) {
                 that._controls.enabled = enabled;
-            },
-
-            getSkyboxColor: function() {
-                return that._skyboxColor;
-            },
-
-            setSkyboxColor: function(color) {
-                that._skyboxColor = color;
-
-                that._renderer.setClearColor(color, that._skyboxOpacity);
-            },
-
-            getBaseColor: function() {
-                return that._baseColor;
-            },
-
-            setBaseColor: function(color) {
-                that._baseColor = name;
             },
 
             setCameraPosition: function(position) {

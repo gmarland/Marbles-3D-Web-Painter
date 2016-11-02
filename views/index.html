@@ -15,7 +15,7 @@
 		<div id="settings-container">
 			<img id="settings" src="/images/settings.svg" border="0" class="selectable" onclick="toggleSettingsSelect();" />
 			<div id="settings-menu" class="menu" style="display: none;">
-				<div id="edit-details-button">Edit Details</div>
+				<div id="edit-details-button" onclick="editScene();">Edit Details</div>
 				<div id="save-btn" onclick="saveScene();">Save</div>
 			</div>
 		</div>
@@ -112,7 +112,7 @@
 			// ----- Methods for the setting menu
 
 			function toggleSettingsSelect() {
-				if ($("#settings-menu").is(":visible")) hideSsettingsSelect();
+				if ($("#settings-menu").is(":visible")) hideSettingsSelect();
 				else openSettingsSelect();
 			}
 
@@ -120,7 +120,7 @@
 				$("#settings-menu").show();	
 			}
 
-			function hideSsettingsSelect() {
+			function hideSettingsSelect() {
 				$("#settings-menu").hide();
 			}
 
@@ -134,7 +134,7 @@
 			// ----- Saving scene method
 
 			function saveScene() {
-				hideSsettingsSelect();
+				hideSettingsSelect();
 
 				if (levelEditor.getId() != null) levelEditor.save();
 				else {
@@ -160,8 +160,29 @@
 
 			// ----- Saving details method
 
-			function updateScene() {
+			function editScene() {
+				hideSettingsSelect();
 
+				levelEditor.setControlsEnabled(false);
+
+                $.ajax({
+                    url: "/dialogs/edit",
+                    type: "GET",
+                    success: function (response) {
+						$("#modal-dialog-overlay").html(response);
+
+						$("#edit-scene-name").val(levelEditor.getName());
+
+						$("#modal-dialog-overlay").show();
+                    }
+                });
+			}
+
+			function updateScene(name) {
+				levelEditor.setName(name);
+				levelEditor.save();
+
+				closeModalDialog();
 			}
 
 			// ----- Methods to set colors

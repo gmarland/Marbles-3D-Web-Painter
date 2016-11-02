@@ -1,27 +1,15 @@
+<script type="text/javascript">
+	function completeDialog() {
+		saveNewScene($("#edit-scene-name").val());
+	}
+</script>
+
 <div id="edit-dialog" class="modal-dialog">
 	<h3>Edit</h3>
 	<h4>Name</h4>
 	<div><input type="text" id="edit-scene-name"></div>
 	<br/>
-	<h4>Background Color</h4>
-	<div><input type="button" id="edit-scene-background" class="jscolor" /></div>
-	<br/>
-	<h4>Base Color (check to enable)</h4>
-	<div class="table">
-		<div class="row">
-			<div class="cell" style="vertical-align: middle;"><input type="checkbox" id="base-visible" value="true" onclick="viewBaseColor()" style="margin: 0px 5px 0px 0px;" /></div>
-			<div id="base-color-container" class="cell" style="vertical-align: middle;display: none;"><input type="button" id="edit-scene-base" class="jscolor" /></div>
-		</div>
-	</div>
-	<br/>
 	<div class="left"><button onclick="closeModalDialog();">Close</button></div>
-	<div class="right"><button onclick="closeModalDialog();">Update</button></div>
+	<div class="right"><button onclick="completeDialog();">Update</button></div>
 	<div class="clear"></div>
-
-	<script type="text/javascript">
-		function viewBaseColor() {
-			if ($("#base-color-container").is(":visible")) $("#base-color-container").hide();
-			else $("#base-color-container").show();
-		}
-	</script>
 </div>
