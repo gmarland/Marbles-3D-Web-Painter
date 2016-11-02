@@ -35,7 +35,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	            mesh: voxelMesh
 	        });
 	    }
-    }
+    };
 
     this.addTriangle = function(sceneVoxel) {
         var voxelGeometry = new THREE.Geometry();
@@ -140,6 +140,56 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	    }
     };
 
+    this.addCorner = function(sceneVoxel) {
+        var voxelGeometry = new THREE.Geometry();
+
+        voxelGeometry.vertices = [
+            new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+            new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2)*-1 ),
+            new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2)*-1, (that._voxelSize/2) ),
+            new THREE.Vector3( (that._voxelSize/2)*-1, (that._voxelSize/2)*-1, (that._voxelSize/2)),
+            new THREE.Vector3( (that._voxelSize/2), (that._voxelSize/2), (that._voxelSize/2)*-1 )
+        ];
+
+        voxelGeometry.faces = [
+            new THREE.Face3( 4, 1, 0),
+            new THREE.Face3( 4, 2, 1),
+            new THREE.Face3( 4, 3, 2),
+            new THREE.Face3( 4, 0, 3),
+            new THREE.Face3( 0, 1, 3),
+            new THREE.Face3( 1, 2, 3)
+        ];    
+
+        voxelGeometry.computeFaceNormals();
+
+        var voxelMaterial = new THREE.MeshLambertMaterial({ color: new THREE.Color(sceneVoxel.color) });
+
+        var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+        voxelMesh.position.x = (sceneVoxel.position.x*that._voxelSize)+(that._voxelSize/2);
+        voxelMesh.position.y = (sceneVoxel.position.y*that._voxelSize)+(that._voxelSize/2);
+        voxelMesh.position.z = (sceneVoxel.position.z*that._voxelSize)+(that._voxelSize/2);
+
+        if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
+        if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
+
+        that._scene.add(voxelMesh);
+        
+        if (that._voxels) {
+            that._voxels.push({
+                position: {
+                    x: sceneVoxel.position.x,
+                    y: sceneVoxel.position.y,
+                    z: sceneVoxel.position.z
+                },
+                shape: "corner",
+                color: sceneVoxel.color,
+                xRotation: sceneVoxel.xRotation,
+                yRotation: sceneVoxel.yRotation,
+                mesh: voxelMesh
+            });
+        }
+    };
+
     return {
     	loadScene: function(sceneVoxels) {
             if (sceneVoxels) {
@@ -147,6 +197,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     		    	if (sceneVoxels[i].shape == "cube") that.addCube(sceneVoxels[i]);
     		    	else if (sceneVoxels[i].shape == "triangle") that.addTriangle(sceneVoxels[i]);
     		    	else if (sceneVoxels[i].shape == "pyramid") that.addPyramid(sceneVoxels[i]);
+                    else if (shape.toLowerCase() == "corner") that.addCorner(sceneVoxels[i]);
     		    }
             }
 		},
@@ -202,6 +253,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
             if (shape.toLowerCase() == "square") that.addCube(sceneVoxel);
             else if (shape.toLowerCase() == "triangle") that.addTriangle(sceneVoxel);
             else if (shape.toLowerCase() == "pyramid") that.addPyramid(sceneVoxel);
+            else if (shape.toLowerCase() == "corner") that.addCorner(sceneVoxel);
     	},
 
 		erase: function(position) {
