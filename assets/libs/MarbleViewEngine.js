@@ -35,6 +35,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	            },
 	            shape: "cube",
 	            color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
 	            xRotation: sceneVoxel.xRotation,
 	            yRotation: sceneVoxel.yRotation,
 	            mesh: voxelMesh
@@ -92,6 +93,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	            },
 	            shape: "triangle",
 	            color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
 	            xRotation: sceneVoxel.xRotation,
 	            yRotation: sceneVoxel.yRotation,
 	            mesh: voxelMesh
@@ -146,6 +148,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	            },
 	            shape: "pyramid",
 	            color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
 	            xRotation: sceneVoxel.xRotation,
 	            yRotation: sceneVoxel.yRotation,
 	            mesh: voxelMesh
@@ -200,6 +203,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
                 },
                 shape: "corner",
                 color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
                 xRotation: sceneVoxel.xRotation,
                 yRotation: sceneVoxel.yRotation,
                 mesh: voxelMesh
@@ -229,6 +233,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
                     position: that._voxels[i].position,
                     shape: that._voxels[i].shape,
                     color: that._voxels[i].color,
+                    opacity: that._voxels[i].opacity,
                     xRotation: that._voxels[i].xRotation,
                     yRotation: that._voxels[i].yRotation
                 });

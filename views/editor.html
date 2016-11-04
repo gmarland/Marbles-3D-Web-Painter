@@ -250,11 +250,6 @@
 
 			// Trying to stop events getting passed onto the editor
 
-			document.addEventListener('mousedown', function(e) {
-				$("#color-select").blur();
-				$("#opacity").blur();
-			}, false);
-
 			document.getElementById("title-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
@@ -317,6 +312,11 @@
 			});
 
 			// Other control methods
+
+			document.addEventListener('mousedown', function(e) {
+				$("#color-select").blur();
+				$("#opacity").blur();
+			}, false);
 
 			document.addEventListener('keyup', function(e) {
 				var keyCode = e.code.toLowerCase();
