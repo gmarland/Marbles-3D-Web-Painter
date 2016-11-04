@@ -42,14 +42,18 @@
 
         this._level = 0;
 
+        this._selectedTool = "painter";
+        this._selectedShape = "square";
+        this._selectedOpacity = 100;
+        this._selectedColor = "#000000";
+
         this._isPainting = false;
         this._isErasing = false;
 
-        this._selectedShape = "square";
-        this._selectedColor = "#000000";
-
         this._xRotation = 0;
         this._yRotation = 0;
+
+        this._eventManager = null;
 
         // -----
 
@@ -254,9 +258,12 @@
                 event.preventDefault();
 
                 if (that.getIsLeftMouseButton(event)) {
-                    that._isPainting = true;
+                    if (that._selectedTool == "painter") {
+                        that._isPainting = true;
 
-                    that.paint();
+                        that.paint();
+                    }
+                    if (that._selectedTool == "sampler") that.sampleColor();
                 }
                 else if (that.getIsRightMouseButton(event)) {
                     that._isErasing = true;
@@ -299,6 +306,16 @@
 
         //----- Painting methods
 
+        this.setTool = function(tool) {
+            that._eventManager("toolChange", { 
+                from: that._selectedTool, 
+                to: tool 
+            });
+
+            that._selectedTool = tool;
+        }
+
+
         this.paint = function() {
             if (that._positioningCube.visible) {
                 var position = {
@@ -307,7 +324,7 @@
                     z: that._positioningCube.position.z
                 };
 
-                that._marbleViewEngine.paint(that._selectedShape, position, that._selectedColor, that._xRotation, that._yRotation);
+                that._marbleViewEngine.paint(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
             }
         };
 
@@ -320,6 +337,25 @@
                 };
 
                 that._marbleViewEngine.erase(position);
+            }
+        };
+
+        this.sampleColor = function() {
+            if (that._positioningCube.visible) {
+                var position = {
+                    x: that._positioningCube.position.x,
+                    y: that._positioningCube.position.y,
+                    z: that._positioningCube.position.z
+                };
+
+                var voxel = that._marbleViewEngine.getVoxelAtPosition(position);
+
+                if (voxel != null) {
+                    that._selectedColor = voxel.color;
+                    that.updatePositioningVoxelColor();
+
+                    that.setTool("painter");
+                }
             }
         };
 
@@ -336,6 +372,10 @@
 
     			that.init(container);
     		},
+
+            setEventManager: function(eventManager) {
+                that._eventManager = eventManager;
+            },
 
             // ----- Property Accessors
 
@@ -371,6 +411,14 @@
                 that._controls.rotateCamera(rotation.x, rotation.y);
             },
 
+            getTool: function() {
+                return that._selectedTool;
+            },
+
+            setTool: function(tool) {
+                that.setTool(tool);
+            },
+
 	        getLevel: function() {
 	        	return that._level;
 	        },
@@ -396,6 +444,10 @@
 
             getColor: function() {
                 return that._selectedColor;
+            },
+
+            setOpacity: function(opacity) {
+                that._selectedOpacity = opacity;
             },
 
             setShape: function(shape) {

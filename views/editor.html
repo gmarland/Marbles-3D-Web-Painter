@@ -64,9 +64,28 @@
 				</div>
 			</div>
 		</div>
-		<div id="color-select-container"><input type="button" id="color-select" class="jscolor" onclick="document.getElementById('color-select').jscolor.show()" onchange="setColor(this.jscolor)" /></div>
+
+		<div id="color-select-container">
+			<div><input type="input" id="color-select" class="jscolor selectable" onclick="document.getElementById('color-select').jscolor.show()" onchange="setColor(this.jscolor)" /></div>
+			<table width="100%" style="margin-top: 5px;">
+				<tr>
+					<td style="width: 50%;text-align: left;">
+						<div class="table">
+							<div class="row">
+								<div class="cell"><input type="text" id="opacity" value="100" /></div>
+							</div>
+						</div>
+					</td>
+					<td style="width: 50%;text-align: right;">
+						<div id="sampler-select"><img id="sampler" src="/images/dropper.svg" border="0" class="selectable" onclick="selectSampler()" /></div>
+					</td>
+				</tr>
+			</table>
+		</div>
 		<div id="modal-dialog-overlay" style="display: none;"></div>
 		<script type="text/javascript">	
+			var numberKeys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
 			// ----- Methods for the setting menu
 
 			function toggleSettingsSelect() {
@@ -145,8 +164,23 @@
 
 			// ----- Methods to set colors
 
+			function selectSampler() {
+				if (levelEditor.getTool() == "painter") {
+					levelEditor.setTool("sampler");
+					$("#sampler-select").addClass("selected")
+				}
+				else {
+					levelEditor.setTool("painter");
+					$("#sampler-select").removeClass("selected");
+				}
+			}
+
 			function setColor(color) {	
 				levelEditor.setColor(color.toString());
+			}
+
+			function setOpacity(opacity) {
+
 			}
 
 			// ----- Methods for managing shapes
@@ -216,6 +250,11 @@
 
 			// Trying to stop events getting passed onto the editor
 
+			document.addEventListener('mousedown', function(e) {
+				$("#color-select").blur();
+				$("#opacity").blur();
+			}, false);
+
 			document.getElementById("title-container").addEventListener('mousedown', function(e) {
 				e.stopPropagation();
 			}, false);
@@ -236,6 +275,47 @@
 				e.stopPropagation();
 			}, false);
 
+			document.getElementById("color-select-container").addEventListener('keydown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("opacity").addEventListener('keydown', function(e) {
+				if ((numberKeys.indexOf(e.key) === -1) && ((e.keyCode !== 8) && (e.keyCode !== 46) && (e.keyCode !== 37) && (e.keyCode !== 39))) {
+					e.preventDefault();
+				}
+			}, false);
+
+			document.getElementById("opacity").addEventListener('keyup', function(e) {
+				if ((numberKeys.indexOf(e.key) !== -1) || (e.keyCode === 8) || (e.keyCode === 46)) {
+					if ($("#opacity").val().length > 0) {
+						var opacity = 100;
+
+						try {
+							opacity = parseInt($("#opacity").val());
+						}
+						catch (err) {
+							console.log(err);
+						}
+
+						if (opacity < 0) {
+							opacity = 0;
+							$("#opacity").val(opacity);
+						}
+						else if (opacity > 100) {
+							opacity = 100;
+							$("#opacity").val(opacity);
+						}
+
+						levelEditor.setOpacity(opacity);
+					}
+					else {
+						$("#opacity").val(0);
+
+						levelEditor.setOpacity(0);
+					}
+				}
+			});
+
 			// Other control methods
 
 			document.addEventListener('keyup', function(e) {
@@ -255,6 +335,17 @@
 			var levelEditor = (new LevelEditor());
 
 			levelEditor.start("scene-container", startColor);
+
+			levelEditor.setEventManager(function(action, details) {
+				if (action == "toolChange") {
+					if ((details != null) && (details.from != null)) {
+						if (details.from == "sampler") {
+							document.getElementById('color-select').jscolor.fromString(levelEditor.getColor());
+							$("#sampler-select").removeClass("selected");
+						}
+					}
+				}
+			});
 			
 			levelEditor.onError = function(message) {
                 $.ajax({
