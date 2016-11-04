@@ -352,6 +352,7 @@
 
                 if (voxel != null) {
                     that._selectedColor = voxel.color;
+                    that._selectedOpacity = voxel.opacity;
                     that.updatePositioningVoxelColor();
 
                     that.setTool("painter");
@@ -448,6 +449,10 @@
 
             setOpacity: function(opacity) {
                 that._selectedOpacity = opacity;
+            },
+
+            getOpacity: function(opacity) {
+                return that._selectedOpacity;
             },
 
             setShape: function(shape) {

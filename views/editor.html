@@ -64,10 +64,9 @@
 				</div>
 			</div>
 		</div>
-
 		<div id="color-select-container">
 			<div><input type="input" id="color-select" class="jscolor selectable" onclick="document.getElementById('color-select').jscolor.show()" onchange="setColor(this.jscolor)" /></div>
-			<table width="100%" style="margin-top: 5px;">
+			<table width="100%" style="margin-top: 2px;">
 				<tr>
 					<td style="width: 50%;text-align: left;">
 						<div class="table">
@@ -179,8 +178,43 @@
 				levelEditor.setColor(color.toString());
 			}
 
-			function setOpacity(opacity) {
+			function setOpacity() {
+				if ($("#opacity").val().length > 0) {
+					var opacity = 100;
 
+					try {
+						opacity = parseInt($("#opacity").val());
+					}
+					catch (err) {
+						console.log(err);
+					}
+
+					var opacityFixed = false;
+
+					if (opacity < 0) {
+						opacity = 0;
+
+						opacityFixed = true;
+					}
+					else if (opacity > 100) {
+						opacity = 100;
+
+						opacityFixed = true;
+					}
+
+					if (opacity !== 0) {
+
+					}
+
+					if (opacityFixed) $("#opacity").val(opacity);
+
+					levelEditor.setOpacity(opacity);
+				}
+				else {
+					$("#opacity").val(0);
+
+					levelEditor.setOpacity(0);
+				}
 			}
 
 			// ----- Methods for managing shapes
@@ -275,41 +309,14 @@
 			}, false);
 
 			document.getElementById("opacity").addEventListener('keydown', function(e) {
-				if ((numberKeys.indexOf(e.key) === -1) && ((e.keyCode !== 8) && (e.keyCode !== 46) && (e.keyCode !== 37) && (e.keyCode !== 39))) {
+				if ((numberKeys.indexOf(e.key) === -1) && 
+					((e.keyCode !== 8) && (e.keyCode !== 46) && (e.keyCode !== 37) && (e.keyCode !== 39))) {
+				console.log(e)
+
 					e.preventDefault();
 				}
+				else if (e.keyCode === 13) $("#opacity").blur();
 			}, false);
-
-			document.getElementById("opacity").addEventListener('keyup', function(e) {
-				if ((numberKeys.indexOf(e.key) !== -1) || (e.keyCode === 8) || (e.keyCode === 46)) {
-					if ($("#opacity").val().length > 0) {
-						var opacity = 100;
-
-						try {
-							opacity = parseInt($("#opacity").val());
-						}
-						catch (err) {
-							console.log(err);
-						}
-
-						if (opacity < 0) {
-							opacity = 0;
-							$("#opacity").val(opacity);
-						}
-						else if (opacity > 100) {
-							opacity = 100;
-							$("#opacity").val(opacity);
-						}
-
-						levelEditor.setOpacity(opacity);
-					}
-					else {
-						$("#opacity").val(0);
-
-						levelEditor.setOpacity(0);
-					}
-				}
-			});
 
 			// Other control methods
 
@@ -340,8 +347,12 @@
 				if (action == "toolChange") {
 					if ((details != null) && (details.from != null)) {
 						if (details.from == "sampler") {
+							// Set the color selector to the sampled color
 							document.getElementById('color-select').jscolor.fromString(levelEditor.getColor());
 							$("#sampler-select").removeClass("selected");
+
+							// Set the opacity to the sampled opacity
+							$("#opacity").val(levelEditor.getOpacity());
 						}
 					}
 				}
