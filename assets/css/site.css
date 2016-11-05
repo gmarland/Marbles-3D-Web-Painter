@@ -34,10 +34,6 @@
 
 /* Form styles */
 
-	.form .input-container {
-
-	}
-
 	.form input[type="text"] {
 		width: 100%;
 		padding: 4px;
@@ -148,4 +144,13 @@
 
 	.selectable {
 		cursor: pointer;
+	}
+
+	.noselect {
+		-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none; /* Chrome/Safari/Opera */
+		-khtml-user-select: none; /* Konqueror */
+		-moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* Internet Explorer/Edge */
+		user-select: none; /* Non-prefixed version, currently
 	}

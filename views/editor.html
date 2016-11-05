@@ -34,25 +34,25 @@
 				<div id="save-btn" onclick="saveScene();">Save</div>
 			</div>
 		</div>
-		<div id="shape-select-container">
+		<div id="shape-select-container" class="noselect">
 			<div id="selected-shape-container" class="left" style="margin-left:3px;margin-top:3px;">
 				<img id="selected-shape" src="images/square.png" border="0" class="selectable" onclick="toggleShapeSelect()" />
 			</div>
 			<div class="right">
 				<div class="table">
 					<div class="row">
-						<div class="cell" style="padding-bottom:2px;"><img src="images/up-arrow.png" border="0" class="selectable" onclick="rotateUp()" /></div>
+						<div class="cell" style="padding-bottom:2px;"><img id="up-arrow" src="images/up-arrow.png" border="0" class="selectable rotate-arrow" onclick="rotateUp()" /></div>
 					</div>
 					<div class="row">
-						<div class="cell" style="padding-top:2px;"><img src="images/down-arrow.png" border="0" class="selectable" onclick="rotateDown()" /></div>
+						<div class="cell" style="padding-top:2px;"><img id="down-arrow" src="images/down-arrow.png" border="0" class="selectable rotate-arrow" onclick="rotateDown()" /></div>
 					</div>
 				</div>
 			</div>
 			<div class="clear"></div>
 			<div class="table" style="margin-left:1px;margin-top:3px">
 				<div class="row">
-					<div class="cell left-aligned" style="padding-right:2px;"><img src="images/left-arrow.png" border="0" class="selectable" onclick="rotateLeft()" /></div>
-					<div class="cell right-aligned" style="padding-left:2px;"><img src="images/right-arrow.png" border="0" class="selectable" onclick="rotateRight()" /></div>
+					<div class="cell left-aligned" style="padding-right:2px;"><img id="left-arrow" src="images/left-arrow.png" border="0" class="selectable rotate-arrow" onclick="rotateLeft()" /></div>
+					<div class="cell right-aligned" style="padding-left:2px;"><img id="right-arrow" src="images/right-arrow.png" border="0" class="selectable rotate-arrow" onclick="rotateRight()" /></div>
 				</div>
 			</div>
 			<div id="all-shapes" class="table menu" style="display: none;">
@@ -320,7 +320,15 @@
 
 			// Other control methods
 
-			document.addEventListener('mousedown', function(e) {
+			$(".rotate-arrow").mousedown(function(e) {
+				$(this).attr("src", "images/" + $(this).attr("id") + "-selected.png");
+			});
+
+			$(".rotate-arrow").mouseup(function(e) {
+				$(this).attr("src", "images/" + $(this).attr("id") + ".png");
+			});
+
+			document.addEventListener("mousedown", function(e) {
 				$("#color-select").blur();
 				$("#opacity").blur();
 			}, false);
