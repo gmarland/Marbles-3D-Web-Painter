@@ -166,8 +166,14 @@
         }
 
         this.getPositioningVoxel = function() {
-			var positioningGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
-			var positioningMaterial = new THREE.MeshBasicMaterial( { color: new THREE.Color(that._selectedColor), opacity: 0.5, transparent: true } );
+			var positioningGeometry;
+
+            if (that._selectedShape == "square") positioningGeometry = that._marbleViewEngine.getCubeGeometry();
+            else if (that._selectedShape == "triangle") positioningGeometry = that._marbleViewEngine.getTriangleGeometry();
+            else if (that._selectedShape == "pyramid") positioningGeometry = that._marbleViewEngine.getPyramidGeometry();
+            else if (that._selectedShape == "corner") positioningGeometry = that._marbleViewEngine.getCornerGeometry();
+			
+            var positioningMaterial = new THREE.MeshBasicMaterial( { color: new THREE.Color(that._selectedColor), opacity: 0.5, transparent: true } );
 
 			var positioningMesh = new THREE.Mesh(positioningGeometry, positioningMaterial);
 			positioningMesh.visible = false;
@@ -175,8 +181,28 @@
 			return positioningMesh;
         };
 
+        this.updatePositioningVoxelShape = function() {
+            var positioningCube = that.getPositioningVoxel()
+            positioningCube.position.x = that._positioningCube.position.x;
+            positioningCube.position.y = that._positioningCube.position.y;
+            positioningCube.position.z = that._positioningCube.position.z
+
+            that._scene.remove(that._positioningCube);
+            that._positioningCube = null;
+            that._positioningCube = positioningCube;
+            that._scene.add(that._positioningCube);
+        };
+
         this.updatePositioningVoxelColor = function() {
             that._positioningCube.material.color = new THREE.Color(that._selectedColor);
+        };
+
+        this.updatePositioningVoxelRotation = function() {
+            that._positioningCube.rotation.x = 0;
+            that._positioningCube.rotation.y = 0;
+
+            that._positioningCube.rotation.x += that._yRotation;
+            that._positioningCube.rotation.y += that._xRotation;
         };
 
         // -----
@@ -460,6 +486,8 @@
 
                 that._xRotation = 0;
                 that._yRotation = 0;
+
+                that.updatePositioningVoxelShape();
             },
 
             setXRotation: function(deg) {
@@ -467,6 +495,8 @@
 
                 if (that._xRotation === (Math.PI*2)) that._xRotation = 0;
                 else if (that._xRotation === ((Math.PI*-1)*2)) that._xRotation = 0;
+
+                that.updatePositioningVoxelRotation();
             },
 
             setYRotation: function(deg) {
@@ -474,6 +504,8 @@
 
                 if (that._yRotation === (Math.PI*2)) that._yRotation = 0;
                 else if (that._yRotation === ((Math.PI*-1)*2)) that._yRotation = 0;
+
+                that.updatePositioningVoxelRotation();
             },
 
             // ----- Public Methods
