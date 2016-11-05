@@ -128,7 +128,7 @@
 		bottom: 0px;
 		right: 0px;
 		height: 67px;
-		width: 85px;
+		width: 100px;
 		padding: 5px;
 		border-top: 1px solid #666666;
 		border-left: 1px solid #666666;
@@ -171,4 +171,8 @@
 	#color-select-container #opacity {
 		text-align: center;
 		width: 30px;
+	}
+
+	#color-select-container #opacity-icon {
+		width: 15px;	
 	}

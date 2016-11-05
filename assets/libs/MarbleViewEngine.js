@@ -7,8 +7,12 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 
     this._voxels = [];
 
+    this.getCubeGeometry = function() {
+        return new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
+    };
+
     this.addCube = function(sceneVoxel) {
-        var voxelGeometry = new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
+        var voxelGeometry = that.getCubeGeometry();
 
         var voxelMaterial = new THREE.MeshLambertMaterial({ 
             color: new THREE.Color(sceneVoxel.color), 
@@ -43,7 +47,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	    }
     };
 
-    this.addTriangle = function(sceneVoxel) {
+    this.getTriangleGeometry = function() {
         var voxelGeometry = new THREE.Geometry();
 
         voxelGeometry.vertices = [
@@ -67,6 +71,12 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         ];    
 
         voxelGeometry.computeFaceNormals();
+
+        return voxelGeometry;
+    };
+
+    this.addTriangle = function(sceneVoxel) {
+        var voxelGeometry = that.getTriangleGeometry();
 
         var voxelMaterial = new THREE.MeshLambertMaterial({ 
             color: new THREE.Color(sceneVoxel.color), 
@@ -101,7 +111,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         }
     };
 
-    this.addPyramid = function(sceneVoxel) {
+    this.getPyramidGeometry = function() {
         var voxelGeometry = new THREE.Geometry();
 
         voxelGeometry.vertices = [
@@ -122,6 +132,12 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         ];    
 
         voxelGeometry.computeFaceNormals();
+
+        return voxelGeometry;
+    };
+
+    this.addPyramid = function(sceneVoxel) {
+        var voxelGeometry = that.getPyramidGeometry();
 
         var voxelMaterial = new THREE.MeshLambertMaterial({ 
             color: new THREE.Color(sceneVoxel.color), 
@@ -156,7 +172,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 	    }
     };
 
-    this.addCorner = function(sceneVoxel) {
+    this.getCornerGeometry = function() {
         var voxelGeometry = new THREE.Geometry();
 
         voxelGeometry.vertices = [
@@ -177,6 +193,12 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         ];    
 
         voxelGeometry.computeFaceNormals();
+
+        return voxelGeometry;
+    };
+
+    this.addCorner = function(sceneVoxel) {
+        var voxelGeometry = that.getCornerGeometry();
 
         var voxelMaterial = new THREE.MeshLambertMaterial({ 
             color: new THREE.Color(sceneVoxel.color), 
@@ -241,6 +263,22 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 
             return scene;
 		},
+
+        getCubeGeometry: function() {
+            return that.getCubeGeometry();
+        },
+
+        getTriangleGeometry: function() {
+            return that.getTriangleGeometry();
+        },
+
+        getPyramidGeometry: function() {
+            return that.getPyramidGeometry();
+        },
+
+        getCornerGeometry: function() {
+            return that.getCornerGeometry();
+        },
 
         getVoxelAtPosition: function(position) {
             var spacePosition = {

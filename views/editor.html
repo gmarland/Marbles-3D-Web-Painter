@@ -66,17 +66,19 @@
 		</div>
 		<div id="color-select-container">
 			<div><input type="input" id="color-select" class="jscolor selectable" onclick="document.getElementById('color-select').jscolor.show()" onchange="setColor(this.jscolor)" /></div>
-			<table width="100%" style="margin-top: 2px;">
+			<table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 5px;">
 				<tr>
 					<td style="width: 50%;text-align: left;">
-						<div class="table">
-							<div class="row">
-								<div class="cell"><input type="text" id="opacity" value="100" /></div>
-							</div>
-						</div>
+						<table title="Opacity" cellspacing="0" cellpadding="0">
+							<tr>
+								<td style="padding: 2px 2px 0px 0px;"><img id="opacity-icon" src="/images/opacity.svg" /></td>
+								<td><input type="text" id="opacity" value="100" /></td>
+							</tr>
+						</table>
 					</td>
 					<td style="width: 50%;text-align: right;">
-						<div id="sampler-select"><img id="sampler" src="/images/dropper.svg" border="0" class="selectable" onclick="selectSampler()" /></div>
+						<div id="sampler-select" class="right"><img id="sampler" src="/images/dropper.svg" border="0" class="selectable" onclick="selectSampler()" title="Color Sampler" /></div>
+						<div class="clear"></div>
 					</td>
 				</tr>
 			</table>
@@ -311,8 +313,6 @@
 			document.getElementById("opacity").addEventListener('keydown', function(e) {
 				if ((numberKeys.indexOf(e.key) === -1) && 
 					((e.keyCode !== 8) && (e.keyCode !== 46) && (e.keyCode !== 37) && (e.keyCode !== 39))) {
-				console.log(e)
-
 					e.preventDefault();
 				}
 				else if (e.keyCode === 13) $("#opacity").blur();
