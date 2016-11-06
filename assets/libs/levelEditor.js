@@ -33,8 +33,13 @@
         this._skyboxOpacity = 1;
 
         this._basePlaneWidth = 1000;
-        this._basePlane = null;
+        this._basePlaneTop = null;
+        this._basePlaneBottom = null;
         this._baseGrid = null;
+
+        // This is the rotation of the grid. h = horzontal, vz = vertical along the z axix, vx = vertical along the x axis
+        this._gridRotations = [ "h", "vz", "vx" ];
+        this._gridRotation = "h";
 
         this._positioningCube = null;
 
@@ -79,8 +84,11 @@
             that._camera = that.getCamera(that._containerWidth, that._containerHeight);
             that._scene.add(that._camera);
 
-            that._basePlane = that.getBasePlane();
-			that._scene.add(that._basePlane);
+            that._basePlaneTop = that.getBasePlaneTop();
+            that._scene.add(that._basePlaneTop);
+
+            that._basePlaneBottom = that.getBasePlaneBottom();
+            that._scene.add(that._basePlaneBottom);
 
 			that._baseGrid = that.getBaseGrid();
 			that._scene.add(that._baseGrid);
@@ -139,11 +147,18 @@
 
         // ----- Methods for creating base plane
 
-        this.getBasePlane = function() {
-			var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
-			geometry.rotateX( - Math.PI / 2 );
+        this.getBasePlaneTop = function() {
+            var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
+            geometry.rotateX( - Math.PI / 2 );
 
-			return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
+            return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
+        };
+
+        this.getBasePlaneBottom = function() {
+            var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
+            geometry.rotateX(Math.PI / 2 );
+
+            return new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ visible: false }));
         };
 
         this.getBaseGrid = function() {
@@ -163,7 +178,49 @@
 			var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.3, transparent: true } );
 
 			return new THREE.LineSegments( geometry, material );
-        }
+        };
+
+        this.rotateGrid = function(gridRotation) {
+            that._positioningCube.visible = false;
+
+            that._level = 0;
+
+            that._baseGrid.rotation.x = 0;
+            that._baseGrid.rotation.z = 0;
+
+            that._baseGrid.position.x = 0;
+            that._baseGrid.position.y = 0;
+            that._baseGrid.position.z = 0;
+
+            that._basePlaneTop.rotation.x = 0;
+            that._basePlaneTop.rotation.z = 0;
+
+            that._basePlaneTop.position.x = 0;
+            that._basePlaneTop.position.y = 0;
+            that._basePlaneTop.position.z = 0;
+
+            that._basePlaneBottom.rotation.x = 0;
+            that._basePlaneBottom.rotation.z = 0;
+
+            that._basePlaneBottom.position.x = 0;
+            that._basePlaneBottom.position.y = 0;
+            that._basePlaneBottom.position.z = 0;
+
+            if (gridRotation == "vz") {
+                that._baseGrid.rotation.x += (Math.PI / 2);
+                that._basePlaneTop.rotation.x += (Math.PI / 2);
+                that._basePlaneBottom.rotation.x += (Math.PI / 2);
+            }
+            else if (gridRotation == "vx") {
+                that._baseGrid.rotation.z -= (Math.PI / 2);
+                that._basePlaneTop.rotation.z -= (Math.PI / 2);
+                that._basePlaneBottom.rotation.z -= (Math.PI / 2);
+            }
+
+            that._gridRotation = gridRotation;
+        };
+
+        // ----- Methods for setting the positioning voxel
 
         this.getPositioningVoxel = function() {
 			var positioningGeometry;
@@ -262,15 +319,32 @@
 
     			that._raycaster.setFromCamera(that._mouse, that._camera);
 
-    			var intersects = that._raycaster.intersectObject(that._basePlane);
+    			var intersects = that._raycaster.intersectObject(that._basePlaneTop);
+                var side = "top";
 
-    			if ( intersects.length > 0 ) {
+                if (intersects.length === 0) {
+                    intersects = that._raycaster.intersectObject(that._basePlaneBottom);
+                    side = "bottom";
+                }
+
+    			if (intersects.length > 0) {
     				that._positioningCube.visible = true;
 
     				var intersect = intersects[0];
 
-    				that._positioningCube.position.copy( intersect.point ).add( intersect.face.normal );
+                    var point = intersect.point;
+
+                    if (that._gridRotation == "h") point.y = (that._level*that._voxelSize);
+                    else if (that._gridRotation == "vx") point.x = (that._level*that._voxelSize);
+                    else if (that._gridRotation == "vz") point.z = (that._level*that._voxelSize);
+
+    				that._positioningCube.position.copy(point).add(intersect.face.normal);
     				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
+                    
+                    if (side == "bottom") {
+                        if (that._gridRotation == "vx") that._positioningCube.position.x -= that._voxelSize;
+                        else if (that._gridRotation == "vz") that._positioningCube.position.z -= that._voxelSize;
+                    }
 
     				if (that._isPainting) that.paint();
                     else if (that._isErasing) that.erase();
@@ -451,11 +525,31 @@
 	        },
 
 	        setLevel: function(level) {
-	        	if ((that._controls.enabled) && (level >= 0)) {
-			    	that._basePlane.position.y = (level*that._voxelSize);
-			    	that._baseGrid.position.y = (level*that._voxelSize);
+                var maxLevel = (that._basePlaneWidth/that._voxelSize)/2,
+                    minLevel = ((that._basePlaneWidth/that._voxelSize)/2)*-1;
 
-	        		that._positioningCube.position.y = (level*that._voxelSize)+(that._voxelSize/2);
+	        	if ((that._controls.enabled) && (level <= maxLevel) && (level >= minLevel)) {
+                    if (that._gridRotation === "h") {
+                        that._basePlaneTop.position.y = (level*that._voxelSize);
+                        that._basePlaneBottom.position.y = (level*that._voxelSize);
+                        that._baseGrid.position.y = (level*that._voxelSize);
+
+                        that._positioningCube.position.y = (level*that._voxelSize)+(that._voxelSize/2);
+                    }
+                    else if (that._gridRotation === "vz") {
+                        that._basePlaneTop.position.z = (level*that._voxelSize)*-1;
+                        that._basePlaneBottom.position.z = (level*that._voxelSize)*-1;
+                        that._baseGrid.position.z = (level*that._voxelSize)*-1;
+
+                        that._positioningCube.position.z = ((level*that._voxelSize)+(that._voxelSize/2))*-1;
+                    }
+                    else if (that._gridRotation === "vx") {
+                        that._basePlaneTop.position.x = (level*that._voxelSize);
+                        that._basePlaneBottom.position.x = (level*that._voxelSize);
+                        that._baseGrid.position.x = (level*that._voxelSize);
+
+                        that._positioningCube.position.x = (level*that._voxelSize)+(that._voxelSize/2);
+                    }
 
 			    	that._level = level;
 
@@ -488,6 +582,46 @@
                 that._yRotation = 0;
 
                 that.updatePositioningVoxelShape();
+            },
+
+            rotateGridLeft: function() {
+                var currentIndex = null,
+                    newIndex = null;
+
+                for (var i=0; i<that._gridRotations.length; i++) {
+                    if (that._gridRotations[i] == that._gridRotation) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+
+                if (currentIndex === null) newIndex = 0;
+                else  {
+                    if (currentIndex === 0) newIndex = (that._gridRotations.length-1);
+                    else newIndex = (currentIndex-1);
+                }
+
+                that.rotateGrid(that._gridRotations[newIndex]);
+            },
+
+            rotateGridRight: function() {
+                var currentIndex = null,
+                    newIndex = null;
+
+                for (var i=0; i<that._gridRotations.length; i++) {
+                    if (that._gridRotations[i] == that._gridRotation) {
+                        currentIndex = i;
+                        break;
+                    }
+                }
+
+                if (currentIndex === null) newIndex = 0;
+                else  {
+                    if (currentIndex === (that._gridRotations.length-1)) newIndex = 0;
+                    else newIndex = (currentIndex+1);
+                }
+
+                that.rotateGrid(that._gridRotations[newIndex]);
             },
 
             setXRotation: function(deg) {

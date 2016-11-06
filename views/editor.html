@@ -339,6 +339,8 @@
 
 				if (keyCode == "arrowup") levelEditor.setLevel((level+1));
 				else if (keyCode == "arrowdown") levelEditor.setLevel((level-1));
+				else if (keyCode == "arrowleft") levelEditor.rotateGridLeft();
+				else if (keyCode == "arrowright") levelEditor.rotateGridRight();
 			}, false);
 
 			// Initialize the editor
