@@ -332,17 +332,17 @@
 
     				var intersect = intersects[0];
 
-                    var point = intersect.point;
+    				that._positioningCube.position.copy(intersect.point).add(intersect.face.normal);
 
-                    if (that._gridRotation == "h") point.y = (that._level*that._voxelSize);
-                    else if (that._gridRotation == "vx") point.x = (that._level*that._voxelSize);
-                    else if (that._gridRotation == "vz") point.z = (that._level*that._voxelSize);
+                    if (that._gridRotation == "h") that._positioningCube.position.y = (that._level*that._voxelSize);
+                    else if (that._gridRotation == "vx") that._positioningCube.position.x = (that._level*that._voxelSize);
+                    else if (that._gridRotation == "vz") that._positioningCube.position.z = (that._level*that._voxelSize)*-1;
 
-    				that._positioningCube.position.copy(point).add(intersect.face.normal);
     				that._positioningCube.position.divideScalar(that._voxelSize).floor().multiplyScalar(that._voxelSize).addScalar((that._voxelSize/2));
                     
                     if (side == "bottom") {
-                        if (that._gridRotation == "vx") that._positioningCube.position.x -= that._voxelSize;
+                        if (that._gridRotation == "h") that._positioningCube.position.y -= that._voxelSize;
+                        else if (that._gridRotation == "vx") that._positioningCube.position.x -= that._voxelSize;
                         else if (that._gridRotation == "vz") that._positioningCube.position.z -= that._voxelSize;
                     }
 
