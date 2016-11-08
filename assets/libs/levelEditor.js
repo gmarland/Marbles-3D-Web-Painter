@@ -22,7 +22,7 @@
 		this._raycaster = null;
 		this._mouse = null;
 
-    	this._directionalLight = null;
+    	this._lights = [];
 
     	this._camera = null;
         this._controls = null;
@@ -80,8 +80,9 @@
 			that._raycaster = new THREE.Raycaster();
 			that._mouse = new THREE.Vector2();
 
-           	that._directionalLight = that.getDirectionalLight();
-            that._scene.add(that._directionalLight);
+           	that._lights = that.getLighting();
+
+            for (var i=0; i<that._lights.length; i++) that._scene.add(that._lights[i]);
 
             that._camera = that.getCamera(that._containerWidth, that._containerHeight);
             that._scene.add(that._camera);
@@ -134,20 +135,22 @@
             });
        	};
 
-        this.getDirectionalLight = function() {               
-        	var color = 0xffffff,
-        		intensity = 1.0;
+        this.getLighting = function() {               
+            var lights = [];
 
-            var positionAt = {
-            	x: 0,
-            	y: 1000,
-            	z: 1000
-            };
+            var directionalLightTop = new THREE.PointLight(0xffffff, .75); 
+            directionalLightTop.position.set(0, (that._basePlaneWidth/2) + (this._voxelSize*10), 0);
 
-            var directionalLight = new THREE.PointLight(color, intensity); 
-            directionalLight.position.set(positionAt.x, positionAt.y, positionAt.z);
+            lights.push(directionalLightTop);
 
-            return directionalLight;
+            var directionalLightBottom = new THREE.PointLight(0xffffff, .75); 
+            directionalLightBottom.position.set(0, ((that._basePlaneWidth/2)*-1) - (this._voxelSize*10), 0);
+
+            lights.push(directionalLightBottom);
+
+            lights.push(new THREE.AmbientLight(0x444444));    
+
+            return lights;
         };
 
         // ----- Methods for creating the frame for the scene
