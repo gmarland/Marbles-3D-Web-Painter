@@ -32,6 +32,8 @@
         this._skyboxColor = 0xefefef;
         this._skyboxOpacity = 1;
 
+        this._frame = null;
+
         this._basePlaneWidth = 1000;
         this._basePlaneTop = null;
         this._basePlaneBottom = null;
@@ -83,6 +85,9 @@
 
             that._camera = that.getCamera(that._containerWidth, that._containerHeight);
             that._scene.add(that._camera);
+
+            that._frame = that.getFrame();
+            that._scene.add(that.getFrame());
 
             that._basePlaneTop = that.getBasePlaneTop();
             that._scene.add(that._basePlaneTop);
@@ -144,6 +149,19 @@
 
             return directionalLight;
         };
+
+        // ----- Methods for creating the frame for the scene
+
+        this.getFrame = function() {
+            var frameGeometry = new THREE.BoxGeometry(that._basePlaneWidth, that._basePlaneWidth, that._basePlaneWidth);
+            var edgesGeometry = new THREE.EdgesGeometry(frameGeometry); 
+
+            var frameMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x000000, 
+                opacity: 0.3 });
+
+            return new THREE.LineSegments(edgesGeometry, frameMaterial);
+        }
 
         // ----- Methods for creating base plane
 
@@ -528,7 +546,7 @@
                 var maxLevel = (that._basePlaneWidth/that._voxelSize)/2,
                     minLevel = ((that._basePlaneWidth/that._voxelSize)/2)*-1;
 
-	        	if ((that._controls.enabled) && (level <= maxLevel) && (level >= minLevel)) {
+	        	if ((that._controls.enabled) && (level < maxLevel) && (level > minLevel)) {
                     if (that._gridRotation === "h") {
                         that._basePlaneTop.position.y = (level*that._voxelSize);
                         that._basePlaneBottom.position.y = (level*that._voxelSize);

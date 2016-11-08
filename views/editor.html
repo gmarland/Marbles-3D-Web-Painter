@@ -85,6 +85,8 @@
 		</div>
 		<div id="modal-dialog-overlay" style="display: none;"></div>
 		<script type="text/javascript">	
+			// ----- Random numbers variables used in different areas
+
 			var numberKeys = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 			// ----- Methods for the setting menu
@@ -310,12 +312,33 @@
 				e.stopPropagation();
 			}, false);
 
+			document.getElementById("color-select-container").addEventListener('keydown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			// Event listeners to help control the block opacity
+
+			document.getElementById("opacity").addEventListener('mousedown', function(e) {
+				e.stopPropagation();
+			}, false);
+
+			document.getElementById("opacity").addEventListener('mousemove', function(e) {
+				e.stopPropagation();
+			}, false);
+
 			document.getElementById("opacity").addEventListener('keydown', function(e) {
+
 				if ((numberKeys.indexOf(e.key) === -1) && 
-					((e.keyCode !== 8) && (e.keyCode !== 46) && (e.keyCode !== 37) && (e.keyCode !== 39))) {
+					((e.keyCode !== 8) && (e.keyCode !== 46) && (e.keyCode !== 37) && (e.keyCode !== 39) && (e.keyCode !== 13))) {
 					e.preventDefault();
 				}
-				else if (e.keyCode === 13) $("#opacity").blur();
+				else if (e.keyCode === 13) {
+					$("#opacity").blur();
+				}
+			}, false);
+
+			document.getElementById("opacity").addEventListener('blur', function(e) {
+				setOpacity();
 			}, false);
 
 			// Other control methods
@@ -343,7 +366,18 @@
 				else if (keyCode == "arrowright") levelEditor.rotateGridRight();
 			}, false);
 
-			// Initialize the editor
+
+			document.addEventListener("mousewheel", MouseWheelHandler, false);
+			document.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+
+			function MouseWheelHandler(e) {
+				if (e.deltaY) {
+					var level = levelEditor.getLevel();
+
+					if (e.deltaY < 0) levelEditor.setLevel((level+1));
+					else levelEditor.setLevel((level-1));
+				}
+			}
 
 			var startColor = "#ff0000";
 
