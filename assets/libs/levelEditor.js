@@ -138,17 +138,37 @@
         this.getLighting = function() {               
             var lights = [];
 
-            var directionalLightTop = new THREE.PointLight(0xffffff, .75); 
+            var directionalLightTop = new THREE.PointLight(0xffffff, .5); 
             directionalLightTop.position.set(0, (that._basePlaneWidth/2) + (this._voxelSize*10), 0);
 
             lights.push(directionalLightTop);
 
-            var directionalLightBottom = new THREE.PointLight(0xffffff, .75); 
+            var directionalLightBottom = new THREE.PointLight(0xffffff, .5); 
             directionalLightBottom.position.set(0, ((that._basePlaneWidth/2)*-1) - (this._voxelSize*10), 0);
 
             lights.push(directionalLightBottom);
 
-            lights.push(new THREE.AmbientLight(0x444444));    
+            var directionalLightFront = new THREE.PointLight(0xffffff, .25); 
+            directionalLightFront.position.set(0, 0, (that._basePlaneWidth/2) + (this._voxelSize*10));
+
+            lights.push(directionalLightFront);
+
+            var directionalLightRight = new THREE.PointLight(0xffffff, .25); 
+            directionalLightRight.position.set(((that._basePlaneWidth/2) + (this._voxelSize*10)), 0, 0);
+
+            lights.push(directionalLightRight);
+
+            var directionalLightBack = new THREE.PointLight(0xffffff, .25); 
+            directionalLightBack.position.set(0, 0, (((that._basePlaneWidth/2) + (this._voxelSize*10))*-1));
+
+            lights.push(directionalLightBack);
+
+            var directionalLightLeft = new THREE.PointLight(0xffffff, .25); 
+            directionalLightLeft.position.set((((that._basePlaneWidth/2) + (this._voxelSize*10))*-1), 0, 0);
+
+            lights.push(directionalLightLeft);
+
+            lights.push(new THREE.AmbientLight(0x666666));    
 
             return lights;
         };
