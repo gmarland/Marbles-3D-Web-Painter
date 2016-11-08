@@ -120,13 +120,13 @@
         this.getCamera = function(containerWidth, containerHeight) {
         	var fov = 75,
         		aspect = (containerWidth/containerHeight),
-        		far = 2000;
+        		far = that._basePlaneWidth*3;
 
             return new THREE.PerspectiveCamera(fov, aspect, 0.1, far);
         };
 
        	this.getControls = function(scene, camera, domElement) {
-			return new THREE.FirstPersonControls(scene, camera, domElement, function() {
+			return new THREE.FirstPersonControls(scene, camera, (that._basePlaneWidth*1.5), domElement, function() {
                 that.repositionPositioningCube();
 
                 if (that._isPainting) that.paint();

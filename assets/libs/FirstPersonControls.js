@@ -1,4 +1,4 @@
-THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
+THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, moveFunction) {
 	this.enabled = true;
 
 	this._movementSpeed = 10;
@@ -9,6 +9,8 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 
     // Set the camera up in the object  and rotate it 90 degrees on the y (we need to do this for positioning later)
 	this._camera = camera;
+
+	this._maxDistance = maxDistance;	
 
 	this._domElement = domElement;
 
@@ -127,6 +129,7 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 	this.update = function( delta ) {
 		var actionOccured = false;
 
+
 		// Actions to move the camera via keyboard commands
 		if (this.moveForward) {
 			this._yawObject.translateZ(-this._movementSpeed);
@@ -138,6 +141,9 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 			actionOccured = true;
 		}
 
+		if (this._yawObject.position.z < (this._maxDistance*-1)) this._yawObject.position.z = (this._maxDistance*-1);
+		if (this._yawObject.position.z > this._maxDistance) this._yawObject.position.z = this._maxDistance;
+
 		if (this.moveLeft) {
 			this._yawObject.translateX(-this._movementSpeed);
 			actionOccured = true;
@@ -148,6 +154,9 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 			actionOccured = true;
 		}
 
+		if (this._yawObject.position.x < (this._maxDistance*-1)) this._yawObject.position.x = (this._maxDistance*-1);
+		if (this._yawObject.position.x > this._maxDistance) this._yawObject.position.x = this._maxDistance;
+
 		if (this.moveUp) {
 			this._yawObject.translateY(this._movementSpeed);
 			actionOccured = true;
@@ -157,6 +166,9 @@ THREE.FirstPersonControls = function (scene, camera, domElement, moveFunction) {
 			this._yawObject.translateY(-this._movementSpeed);
 			actionOccured = true;
 		}
+
+		if (this._yawObject.position.y < (this._maxDistance*-1)) this._yawObject.position.y = (this._maxDistance*-1);
+		if (this._yawObject.position.y > this._maxDistance) this._yawObject.position.y = this._maxDistance;
 
 		if (this.rotateLeft) {
 			this._yawObject.rotation.y += 0.04;
