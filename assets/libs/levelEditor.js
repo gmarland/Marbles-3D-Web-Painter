@@ -173,6 +173,32 @@
             return lights;
         };
 
+        // ----- Rendering functions
+
+        this.getRenderer = function(containerWidth, containerHeight, skyboxColor, skyboxOpacity) {
+            var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(containerWidth, containerHeight);
+            renderer.setClearColor(skyboxColor, skyboxOpacity);
+
+            return renderer;
+        };
+
+        this.render = function() {
+            function updateScene() {
+               if (that._controls) that._controls.update(that._clock.getDelta());
+            };
+
+            function renderScene() {
+                requestAnimationFrame( renderScene );
+
+                updateScene();
+
+                that._renderer.render(that._scene, that._camera);
+            };
+
+            renderScene();
+        };
+
         // ----- Methods for creating the frame for the scene
 
         this.getFrame = function() {
@@ -298,38 +324,13 @@
         this.updatePositioningVoxelRotation = function() {
             that._positioningCube.rotation.x = 0;
             that._positioningCube.rotation.y = 0;
+            that._positioningCube.rotation.z = 0;
 
-            that._positioningCube.rotation.x += that._yRotation;
-            that._positioningCube.rotation.y += that._xRotation;
+            that._positioningCube.rotateX(that._yRotation);
+            that._positioningCube.rotateY(that._xRotation);
         };
 
-        // -----
-
-    	this.getRenderer = function(containerWidth, containerHeight, skyboxColor, skyboxOpacity) {
-            var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(containerWidth, containerHeight);
-            renderer.setClearColor(skyboxColor, skyboxOpacity);
-
-            return renderer;
-    	};
-
-       	this.render = function() {
-            function updateScene() {
-               if (that._controls) that._controls.update(that._clock.getDelta());
-            };
-
-            function renderScene() {
-                requestAnimationFrame( renderScene );
-
-                updateScene();
-
-                that._renderer.render(that._scene, that._camera);
-            };
-
-            renderScene();
-        };
-
-        //----- Mouse binding events
+        // ----- Mouse binding events
 
         this.bindWindowEvents = function() {
 			window.addEventListener('resize', function(e) {
@@ -404,12 +405,16 @@
 
                         that.paint();
                     }
-                    if (that._selectedTool == "sampler") that.sampleColor();
+                    else if (that._selectedTool == "sampler") {
+                        that.sampleColor();
+                    }
                 }
                 else if (that.getIsRightMouseButton(event)) {
-                    that._isErasing = true;
+                    if (that._selectedTool == "painter") {
+                        that._isErasing = true;
 
-                    that.erase();
+                        that.erase();
+                    }
                 }
 
                 return false;
@@ -453,6 +458,9 @@
                 to: tool 
             });
 
+            that._isPainting = false;
+            that._isErasing = false;
+
             that._selectedTool = tool;
         }
 
@@ -465,7 +473,7 @@
                     z: that._positioningCube.position.z
                 };
 
-                that._marbleViewEngine.paint(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
+                that._marbleViewEngine.addVoxel(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
             }
         };
 
@@ -477,7 +485,7 @@
                     z: that._positioningCube.position.z
                 };
 
-                that._marbleViewEngine.erase(position);
+                that._marbleViewEngine.removeVoxel(position);
             }
         };
 

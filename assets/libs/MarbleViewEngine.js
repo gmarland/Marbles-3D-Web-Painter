@@ -11,42 +11,6 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         return new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
     };
 
-    this.addCube = function(sceneVoxel) {
-        var voxelGeometry = that.getCubeGeometry();
-
-        var voxelMaterial = new THREE.MeshLambertMaterial({ 
-            color: new THREE.Color(sceneVoxel.color), 
-            transparent: true, 
-            opacity: (sceneVoxel.opacity/100)
-        });
-
-        var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-        voxelMesh.position.x = (sceneVoxel.position.x*that._voxelSize)+(that._voxelSize/2);
-        voxelMesh.position.y = (sceneVoxel.position.y*that._voxelSize)+(that._voxelSize/2);
-        voxelMesh.position.z = (sceneVoxel.position.z*that._voxelSize)+(that._voxelSize/2);
-
-        if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
-        if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
-
-        that._scene.add(voxelMesh);
-
-        if (that._voxels) {
-	        that._voxels.push({
-	            position: {
-	                x: sceneVoxel.position.x,
-	                y: sceneVoxel.position.y,
-	                z: sceneVoxel.position.z
-	            },
-	            shape: "cube",
-	            color: sceneVoxel.color,
-                opacity: sceneVoxel.opacity,
-	            xRotation: sceneVoxel.xRotation,
-	            yRotation: sceneVoxel.yRotation,
-	            mesh: voxelMesh
-	        });
-	    }
-    };
-
     this.getTriangleGeometry = function() {
         var voxelGeometry = new THREE.Geometry();
 
@@ -75,42 +39,6 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         return voxelGeometry;
     };
 
-    this.addTriangle = function(sceneVoxel) {
-        var voxelGeometry = that.getTriangleGeometry();
-
-        var voxelMaterial = new THREE.MeshLambertMaterial({ 
-            color: new THREE.Color(sceneVoxel.color), 
-            transparent: true, 
-            opacity: (sceneVoxel.opacity/100) 
-        });
-
-        var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-        voxelMesh.position.x = (sceneVoxel.position.x*that._voxelSize)+(that._voxelSize/2);
-        voxelMesh.position.y = (sceneVoxel.position.y*that._voxelSize)+(that._voxelSize/2);
-        voxelMesh.position.z = (sceneVoxel.position.z*that._voxelSize)+(that._voxelSize/2);
-
-        if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
-        if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
-
-        that._scene.add(voxelMesh);
-
-        if (that._voxels) {
-	        that._voxels.push({
-	            position: {
-	                x: sceneVoxel.position.x,
-	                y: sceneVoxel.position.y,
-	                z: sceneVoxel.position.z
-	            },
-	            shape: "triangle",
-	            color: sceneVoxel.color,
-                opacity: sceneVoxel.opacity,
-	            xRotation: sceneVoxel.xRotation,
-	            yRotation: sceneVoxel.yRotation,
-	            mesh: voxelMesh
-	        });
-        }
-    };
-
     this.getPyramidGeometry = function() {
         var voxelGeometry = new THREE.Geometry();
 
@@ -134,42 +62,6 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         voxelGeometry.computeFaceNormals();
 
         return voxelGeometry;
-    };
-
-    this.addPyramid = function(sceneVoxel) {
-        var voxelGeometry = that.getPyramidGeometry();
-
-        var voxelMaterial = new THREE.MeshLambertMaterial({ 
-            color: new THREE.Color(sceneVoxel.color), 
-            transparent: true, 
-            opacity: (sceneVoxel.opacity/100)
-        });
-
-        var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
-        voxelMesh.position.x = (sceneVoxel.position.x*that._voxelSize)+(that._voxelSize/2);
-        voxelMesh.position.y = (sceneVoxel.position.y*that._voxelSize)+(that._voxelSize/2);
-        voxelMesh.position.z = (sceneVoxel.position.z*that._voxelSize)+(that._voxelSize/2);
-
-        if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
-        if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
-
-        that._scene.add(voxelMesh);
-        
-        if (that._voxels) {
-	        that._voxels.push({
-	            position: {
-	                x: sceneVoxel.position.x,
-	                y: sceneVoxel.position.y,
-	                z: sceneVoxel.position.z
-	            },
-	            shape: "pyramid",
-	            color: sceneVoxel.color,
-                opacity: sceneVoxel.opacity,
-	            xRotation: sceneVoxel.xRotation,
-	            yRotation: sceneVoxel.yRotation,
-	            mesh: voxelMesh
-	        });
-	    }
     };
 
     this.getCornerGeometry = function() {
@@ -197,22 +89,111 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
         return voxelGeometry;
     };
 
-    this.addCorner = function(sceneVoxel) {
-        var voxelGeometry = that.getCornerGeometry();
-
-        var voxelMaterial = new THREE.MeshLambertMaterial({ 
+    this.createMaterial = function(sceneVoxel) {
+        return new THREE.MeshLambertMaterial({ 
             color: new THREE.Color(sceneVoxel.color), 
             transparent: true, 
             opacity: (sceneVoxel.opacity/100)
         });
+    };
 
-        var voxelMesh = new THREE.Mesh(voxelGeometry, voxelMaterial);
+    this.createMesh = function(sceneVoxel, geometry, material) {
+        var voxelMesh = new THREE.Mesh(geometry, material);
+
         voxelMesh.position.x = (sceneVoxel.position.x*that._voxelSize)+(that._voxelSize/2);
         voxelMesh.position.y = (sceneVoxel.position.y*that._voxelSize)+(that._voxelSize/2);
         voxelMesh.position.z = (sceneVoxel.position.z*that._voxelSize)+(that._voxelSize/2);
 
-        if (sceneVoxel.xRotation) voxelMesh.rotation.y = sceneVoxel.xRotation;
-        if (sceneVoxel.yRotation) voxelMesh.rotation.x = sceneVoxel.yRotation;
+        if (sceneVoxel.xRotation) voxelMesh.rotateY(sceneVoxel.xRotation);
+        if (sceneVoxel.yRotation) voxelMesh.rotateX(sceneVoxel.yRotation);
+
+        return voxelMesh;
+    };
+
+    this.addCube = function(sceneVoxel) {
+        var voxelGeometry = that.getCubeGeometry();
+
+        var voxelMaterial = that.createMaterial(sceneVoxel);
+
+        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+
+        that._scene.add(voxelMesh);
+
+        if (that._voxels) {
+	        that._voxels.push({
+	            position: {
+	                x: sceneVoxel.position.x,
+	                y: sceneVoxel.position.y,
+	                z: sceneVoxel.position.z
+	            },
+	            shape: "cube",
+	            color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
+	            xRotation: sceneVoxel.xRotation,
+	            yRotation: sceneVoxel.yRotation,
+	            mesh: voxelMesh
+	        });
+	    }
+    };
+
+    this.addTriangle = function(sceneVoxel) {
+        var voxelGeometry = that.getTriangleGeometry();
+
+        var voxelMaterial = that.createMaterial(sceneVoxel);
+
+        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+
+        that._scene.add(voxelMesh);
+
+        if (that._voxels) {
+	        that._voxels.push({
+	            position: {
+	                x: sceneVoxel.position.x,
+	                y: sceneVoxel.position.y,
+	                z: sceneVoxel.position.z
+	            },
+	            shape: "triangle",
+	            color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
+	            xRotation: sceneVoxel.xRotation,
+	            yRotation: sceneVoxel.yRotation,
+	            mesh: voxelMesh
+	        });
+        }
+    };
+
+    this.addPyramid = function(sceneVoxel) {
+        var voxelGeometry = that.getPyramidGeometry();
+
+        var voxelMaterial = that.createMaterial(sceneVoxel);
+
+        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+
+        that._scene.add(voxelMesh);
+        
+        if (that._voxels) {
+	        that._voxels.push({
+	            position: {
+	                x: sceneVoxel.position.x,
+	                y: sceneVoxel.position.y,
+	                z: sceneVoxel.position.z
+	            },
+	            shape: "pyramid",
+	            color: sceneVoxel.color,
+                opacity: sceneVoxel.opacity,
+	            xRotation: sceneVoxel.xRotation,
+	            yRotation: sceneVoxel.yRotation,
+	            mesh: voxelMesh
+	        });
+	    }
+    };
+
+    this.addCorner = function(sceneVoxel) {
+        var voxelGeometry = that.getCornerGeometry();
+
+        var voxelMaterial = that.createMaterial(sceneVoxel);
+
+        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
 
         that._scene.add(voxelMesh);
         
@@ -242,7 +223,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     		    	if (sceneVoxels[i].shape == "cube") that.addCube(sceneVoxels[i]);
     		    	else if (sceneVoxels[i].shape == "triangle") that.addTriangle(sceneVoxels[i]);
     		    	else if (sceneVoxels[i].shape == "pyramid") that.addPyramid(sceneVoxels[i]);
-                    else if (shape.toLowerCase() == "corner") that.addCorner(sceneVoxels[i]);
+                    else if (sceneVoxels[i].shape == "corner") that.addCorner(sceneVoxels[i]);
     		    }
             }
 		},
@@ -298,7 +279,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
             return null;
         },
 
-        paint : function(shape, position, selectedColor, opacity, xRotation, yRotation) {
+        addVoxel : function(shape, position, selectedColor, opacity, xRotation, yRotation) {
             var spacePosition = {
                 x: ((position.x-(that._voxelSize/2))/that._voxelSize),
                 y: ((position.y-(that._voxelSize/2))/that._voxelSize),
@@ -307,7 +288,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 
             var voxel = this.getVoxelAtPosition(position);
 
-            if (voxel != null) this.erase(position);
+            if (voxel != null) this.removeVoxel(position);
 
             var sceneVoxel = {
                 position: {
@@ -327,7 +308,7 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
             else if (shape.toLowerCase() == "corner") that.addCorner(sceneVoxel);
     	},
 
-		erase: function(position) {
+		removeVoxel: function(position) {
             if (position !== null) {
                 var spacePosition = {
                     x: ((position.x-(that._voxelSize/2))/that._voxelSize),

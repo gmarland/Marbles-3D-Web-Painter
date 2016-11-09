@@ -121,6 +121,23 @@
 		margin: 10px;
 	}
 
+/* Group shape styles */
+
+	#groups-container {
+		position: fixed;
+		bottom: 0px;
+		left: 85px;
+		height: 57px;
+		width: 400px;
+		padding: 10px;
+		border-top: 1px solid #666666;
+		border-left: 1px solid #666666;
+		border-right: 1px solid #666666;
+	    box-shadow: 0 1px 10px #373737;
+	    background-color: #D6D6D6;
+		z-index: 3;
+	}
+
 /* Color select styles */
 
 	#color-select-container {
@@ -150,8 +167,8 @@
 	}
 
 	#color-select-container #sampler-select {
-		width: 35px;
-		height: 35px;
+		width: 30px;
+		height: 30px;
 		border-radius: 3px;
 		text-align: center;
 		vertical-align: middle;
@@ -165,7 +182,7 @@
 
 	#color-select-container #sampler-select #sampler {
 		margin: 5px;
-		width: 25px;
+		width: 20px;
 	}
 
 	#color-select-container #opacity {

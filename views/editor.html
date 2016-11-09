@@ -168,7 +168,7 @@
 			// ----- Methods to set colors
 
 			function selectSampler() {
-				if (levelEditor.getTool() == "painter") {
+				if (levelEditor.getTool() != "sampler") {
 					levelEditor.setTool("sampler");
 					$("#sampler-select").addClass("selected")
 				}
