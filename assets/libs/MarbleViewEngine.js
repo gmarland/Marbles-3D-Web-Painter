@@ -7,6 +7,8 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 
     this._voxels = [];
 
+    this._materials = {};
+
     this.getCubeGeometry = function() {
         return new THREE.BoxGeometry(that._voxelSize, that._voxelSize, that._voxelSize);
     };
@@ -90,11 +92,17 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     };
 
     this.createMaterial = function(sceneVoxel) {
-        return new THREE.MeshLambertMaterial({ 
-            color: new THREE.Color(sceneVoxel.color), 
-            transparent: true, 
-            opacity: (sceneVoxel.opacity/100)
-        });
+        if (that._materials[sceneVoxel.color] == null) that._materials[sceneVoxel.color] = {};
+
+        if (that._materials[sceneVoxel.color][sceneVoxel.opacity.toString()] == null) {
+            that._materials[sceneVoxel.color][sceneVoxel.opacity.toString()] = new THREE.MeshLambertMaterial({ 
+                color: new THREE.Color(sceneVoxel.color), 
+                transparent: true, 
+                opacity: (sceneVoxel.opacity/100)
+            });
+        }
+
+        return that._materials[sceneVoxel.color][sceneVoxel.opacity];
     };
 
     this.createMesh = function(sceneVoxel, geometry, material) {
@@ -111,11 +119,9 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     };
 
     this.addCube = function(sceneVoxel) {
-        var voxelGeometry = that.getCubeGeometry();
-
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
-        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+        var voxelMesh = that.createMesh(sceneVoxel, that._cubeGeometry, voxelMaterial);
 
         that._scene.add(voxelMesh);
 
@@ -137,11 +143,9 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     };
 
     this.addTriangle = function(sceneVoxel) {
-        var voxelGeometry = that.getTriangleGeometry();
-
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
-        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+        var voxelMesh = that.createMesh(sceneVoxel, that._triangleGeometry, voxelMaterial);
 
         that._scene.add(voxelMesh);
 
@@ -163,11 +167,9 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     };
 
     this.addPyramid = function(sceneVoxel) {
-        var voxelGeometry = that.getPyramidGeometry();
-
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
-        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+        var voxelMesh = that.createMesh(sceneVoxel, that._pyramidGeometry, voxelMaterial);
 
         that._scene.add(voxelMesh);
         
@@ -189,11 +191,9 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
     };
 
     this.addCorner = function(sceneVoxel) {
-        var voxelGeometry = that.getCornerGeometry();
-
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
-        var voxelMesh = that.createMesh(sceneVoxel, voxelGeometry, voxelMaterial);
+        var voxelMesh = that.createMesh(sceneVoxel, that._cornerGeometry, voxelMaterial);
 
         that._scene.add(voxelMesh);
         
@@ -213,6 +213,11 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
             });
         }
     };
+
+    this._cubeGeometry = this.getCubeGeometry();
+    this._triangleGeometry = this.getTriangleGeometry();
+    this._pyramidGeometry = this.getPyramidGeometry();
+    this._cornerGeometry = this.getCornerGeometry();
 
     return {
     	loadScene: function(sceneVoxels) {
@@ -246,19 +251,19 @@ THREE.MarbleViewEngine = function (scene, voxelSize) {
 		},
 
         getCubeGeometry: function() {
-            return that.getCubeGeometry();
+            return that._cubeGeometry;
         },
 
         getTriangleGeometry: function() {
-            return that.getTriangleGeometry();
+            return that._triangleGeometry;
         },
 
         getPyramidGeometry: function() {
-            return that.getPyramidGeometry();
+            return that._pyramidGeometry;
         },
 
         getCornerGeometry: function() {
-            return that.getCornerGeometry();
+            return that._cornerGeometry;
         },
 
         getVoxelAtPosition: function(position) {
