@@ -5,8 +5,6 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 
 	this._voxelSize = voxelSize;
 
-    this._voxels = [];
-
     this._materials = {};
 
     this._sceneMeshes = null;
@@ -177,7 +175,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 
         for (var i=0; i<voxels.length; i++) {
             var sectionMesh = that.getSceneMesh(voxels[i]);
-            sectionMesh.voxels.push(voxel);
+            sectionMesh.voxels.push(voxels[i]);
 
             if (geometries[sectionMesh.position.x.toString()] == null) geometries[sectionMesh.position.x.toString()] = {};
             if (geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()] == null) geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()] = {};
@@ -237,15 +235,27 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 		getScene: function() {
 			var scene = [];
 
-            for (var i=0; i<that._voxels.length; i++) {
-                scene.push({
-                    position: that._voxels[i].position,
-                    shape: that._voxels[i].shape,
-                    color: that._voxels[i].color,
-                    opacity: that._voxels[i].opacity,
-                    xRotation: that._voxels[i].xRotation,
-                    yRotation: that._voxels[i].yRotation
-                });
+            for (var x in that._sceneMeshes) {
+                for (var y in that._sceneMeshes[x]) {
+                    for (var z in that._sceneMeshes[x][y]) {
+                        for (var color in that._sceneMeshes[x][y][z]) {
+                            for (var opacity in that._sceneMeshes[x][y][z][color]) {
+                                var sceneMesh = that._sceneMeshes[x][y][z][color][opacity];
+
+                                for (var i=0; i<sceneMesh.voxels.length; i++) {
+                                    scene.push({
+                                        position: sceneMesh.voxels[i].position,
+                                        shape: sceneMesh.voxels[i].shape,
+                                        color: sceneMesh.voxels[i].color,
+                                        opacity: sceneMesh.voxels[i].opacity,
+                                        xRotation: sceneMesh.voxels[i].xRotation,
+                                        yRotation: sceneMesh.voxels[i].yRotation
+                                    });
+                                }
+                            }   
+                        }
+                    }
+                }
             }
 
             return scene;
@@ -258,12 +268,27 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 z: ((position.z-(that._voxelSize/2))/that._voxelSize)
             };
 
-            for (var i=0; i<that._voxels.length; i++) {
-                if ((that._voxels[i].position.x === spacePosition.x) &&
-                    (that._voxels[i].position.y === spacePosition.y) && 
-                    (that._voxels[i].position.z === spacePosition.z)) {
-                    return that._voxels[i];
-                }
+            var sectionX = Math.floor(spacePosition.x/10),
+                sectionY = Math.floor(spacePosition.y/10),
+                sectionZ = Math.floor(spacePosition.z/10);
+
+            if (that._sceneMeshes[sectionX.toString()] == null) return null;
+            if (that._sceneMeshes[sectionX.toString()][sectionY.toString()] == null) return null;
+            if (that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()] == null) return null;
+
+            for (var color in that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()]) {
+                for (var opacity in that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][color]) {
+                    var sceneMesh = that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][color][opacity];
+
+                    for (var i=0; i<sceneMesh.voxels.length; i++) {
+                        if ((sceneMesh.voxels[i].position.x === spacePosition.x) &&
+                            (sceneMesh.voxels[i].position.y === spacePosition.y) && 
+                            (sceneMesh.voxels[i].position.z === spacePosition.z)) {
+                            return sceneMesh.voxels[i];
+                        }
+                    }
+
+                }   
             }
 
             return null;
@@ -295,56 +320,21 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
             else if (shape.toLowerCase() == "pyramid") newVoxel = that.addPyramid(sceneVoxel);
             else if (shape.toLowerCase() == "corner") newVoxel = that.addCorner(sceneVoxel);
 
-            if (newVoxel) {            
+            if (newVoxel) {        
+                this.removeVoxel(position);
+
                 var sceneMesh = that.getSceneMesh(newVoxel);
 
-                var existingVoxel = this.getVoxelAtPosition(position);
-
-                if (existingVoxel != null) {
-                    for (var i=(that._voxels.length-1); i>=0; i--) {
-                        if ((that._voxels[i].position.x === existingVoxel.position.x) &&
-                            (that._voxels[i].position.y === existingVoxel.position.y) && 
-                            (that._voxels[i].position.z === existingVoxel.position.z)) {
-                            that._voxels.splice(i,1);
-                            break;
-                        }
-                    }
-                }
+                sceneMesh.voxels.push(newVoxel);
 
                 var geometry = new THREE.Geometry();
 
-                try {
-                    geometry.merge(newVoxel.voxelMesh.geometry, newVoxel.voxelMesh.matrix);
-                }
-                catch (err) {
-                    console.log(newVoxel.voxelMesh, err);   
-                }
-
-                if (sceneMesh.mesh !== null) {
-                    var sectionVoxels = [];
-
-                    var sectionX = Math.floor(newVoxel.position.x/10),
-                        sectionY = Math.floor(newVoxel.position.y/10),
-                        sectionZ = Math.floor(newVoxel.position.z/10);
-
-                    for (var i=0; i<that._voxels.length; i++) {
-                        var currentX = Math.floor(that._voxels[i].position.x/10),
-                            currentY = Math.floor(that._voxels[i].position.y/10),
-                            currentZ = Math.floor(that._voxels[i].position.z/10);
-
-                        if (((sectionX === currentX) && (sectionY === currentY) && (sectionZ === currentZ)) && 
-                            (that._voxels[i].color == newVoxel.color) && (that._voxels[i].opacity == newVoxel.opacity)) {
-                            sectionVoxels.push(that._voxels[i]);
-                        }
+                for (var i=0; i<sceneMesh.voxels.length; i++) {
+                    try {
+                        geometry.merge(sceneMesh.voxels[i].voxelMesh.geometry, sceneMesh.voxels[i].voxelMesh.matrix);
                     }
-
-                    for (var i=0; i<sectionVoxels.length; i++) {
-                        try {
-                            geometry.merge(sectionVoxels[i].voxelMesh.geometry, sectionVoxels[i].voxelMesh.matrix);
-                        }
-                        catch (err) {
-                            console.log(sectionVoxels[i].voxelMesh, err);   
-                        }
+                    catch (err) {
+                        console.log(sceneMesh.voxels[i].voxelMesh, err);   
                     }
                 }
 
@@ -361,22 +351,40 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
     	},
 
 		removeVoxel: function(position) {
-            if (position !== null) {
-                var spacePosition = {
-                    x: ((position.x-(that._voxelSize/2))/that._voxelSize),
-                    y: ((position.y-(that._voxelSize/2))/that._voxelSize),
-                    z: ((position.z-(that._voxelSize/2))/that._voxelSize)
-                };
+            if (position !== null) {    
+                var exisitingVoxel = this.getVoxelAtPosition(position);
 
-                for (var i=(that._voxels.length-1); i>=0; i--) {
-                    if ((that._voxels[i].position.x === spacePosition.x) &&
-                        (that._voxels[i].position.y === spacePosition.y) && 
-                        (that._voxels[i].position.z === spacePosition.z)) {
-                        that._scene.remove(that._voxels[i].mesh);
+                if (exisitingVoxel) {
+                    var existingSceneMesh = that.getSceneMesh(exisitingVoxel);
 
-                        that._voxels.splice(i,1);
-                        break;
+                    for (var i=(existingSceneMesh.voxels.length-1); i>=0; i--) {
+                        if ((existingSceneMesh.voxels[i].position.x === exisitingVoxel.position.x) &&
+                            (existingSceneMesh.voxels[i].position.y === exisitingVoxel.position.y) && 
+                            (existingSceneMesh.voxels[i].position.z === exisitingVoxel.position.z)) {
+                            existingSceneMesh.voxels.splice(i, 1);
+                        }
                     }
+
+                    var existingGeometry = new THREE.Geometry();
+
+                    for (var i=0; i<existingSceneMesh.voxels.length; i++) {
+                        try {
+                            existingGeometry.merge(existingSceneMesh.voxels[i].voxelMesh.geometry, existingSceneMesh.voxels[i].voxelMesh.matrix);
+                        }
+                        catch (err) {
+                            console.log(existingSceneMesh.voxels[i].voxelMesh, err);   
+                        }
+                    }
+
+                    existingGeometry.computeFaceNormals();
+
+                    if (existingSceneMesh.mesh !== null) that._scene.remove(existingSceneMesh.mesh);
+                    existingSceneMesh.mesh = new THREE.Mesh(existingGeometry, existingSceneMesh.material);
+
+                    that._scene.add(existingSceneMesh.mesh);
+
+                    existingGeometry.dispose();
+                    existingGeometry = null;
                 }
             }
         }
