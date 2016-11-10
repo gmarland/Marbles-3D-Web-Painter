@@ -17,7 +17,8 @@
 
     	this._scene = null;
 
-        this._marbleViewEngine = null;
+        this._marblesViewEngine = null;
+        this._marblesGeometry = null;
 
 		this._raycaster = null;
 		this._mouse = null;
@@ -75,7 +76,8 @@
 
             that._scene = new THREE.Scene();
 
-            that._marbleViewEngine = THREE.MarbleViewEngine(that._scene, that._voxelSize);
+            that._marblesViewEngine = THREE.MarblesViewEngine(that._scene, that._voxelSize);
+            that._marblesGeometry = THREE.MarblesGeometry(that._voxelSize);
 
 			that._raycaster = new THREE.Raycaster();
 			that._mouse = new THREE.Vector2();
@@ -292,10 +294,10 @@
         this.getPositioningVoxel = function() {
 			var positioningGeometry;
 
-            if (that._selectedShape == "square") positioningGeometry = that._marbleViewEngine.getCubeGeometry();
-            else if (that._selectedShape == "triangle") positioningGeometry = that._marbleViewEngine.getTriangleGeometry();
-            else if (that._selectedShape == "pyramid") positioningGeometry = that._marbleViewEngine.getPyramidGeometry();
-            else if (that._selectedShape == "corner") positioningGeometry = that._marbleViewEngine.getCornerGeometry();
+            if (that._selectedShape == "square") positioningGeometry = that._marblesGeometry.getCubeGeometry();
+            else if (that._selectedShape == "triangle") positioningGeometry = that._marblesGeometry.getTriangleGeometry();
+            else if (that._selectedShape == "pyramid") positioningGeometry = that._marblesGeometry.getPyramidGeometry();
+            else if (that._selectedShape == "corner") positioningGeometry = that._marblesGeometry.getCornerGeometry();
 			
             var positioningMaterial = new THREE.MeshBasicMaterial( { color: new THREE.Color(that._selectedColor), opacity: 0.5, transparent: true } );
 
@@ -473,7 +475,8 @@
                     z: that._positioningCube.position.z
                 };
 
-                that._marbleViewEngine.addVoxel(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
+                
+                that._marblesViewEngine.addVoxel(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
             }
         };
 
@@ -485,7 +488,7 @@
                     z: that._positioningCube.position.z
                 };
 
-                that._marbleViewEngine.removeVoxel(position);
+                that._marblesViewEngine.removeVoxel(position);
             }
         };
 
@@ -497,7 +500,7 @@
                     z: that._positioningCube.position.z
                 };
 
-                var voxel = that._marbleViewEngine.getVoxelAtPosition(position);
+                var voxel = that._marblesViewEngine.getVoxelAtPosition(position);
 
                 if (voxel != null) {
                     that._selectedColor = voxel.color;
@@ -707,7 +710,7 @@
 
                             that._shareId = response.shareId;
 
-                            that._marbleViewEngine.loadScene(response.data);
+                            that._marblesViewEngine.loadScene(response.data);
 
                             if (local.onLoad) local.onLoad(true);
                         }
@@ -741,7 +744,7 @@
                         scene: JSON.stringify({
                             shareId: that._shareId,
                             name: that._sceneName,
-                            data: that._marbleViewEngine.getScene()
+                            data: that._marblesViewEngine.getScene()
                         })
                     },
                     error: function(response) {

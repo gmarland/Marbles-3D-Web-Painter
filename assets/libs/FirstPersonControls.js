@@ -127,7 +127,6 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, mo
 
 
 	this.update = function( delta ) {
-		console.log("here")
 		var actionOccured = false;
 
 
