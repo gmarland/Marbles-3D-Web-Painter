@@ -69,8 +69,6 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
             that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()].voxels = [];
         }
 
-        that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()].voxels.push(voxel);
-
         return that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()];
     }
 
@@ -179,6 +177,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 
         for (var i=0; i<voxels.length; i++) {
             var sectionMesh = that.getSceneMesh(voxels[i]);
+            sectionMesh.voxels.push(voxel);
 
             if (geometries[sectionMesh.position.x.toString()] == null) geometries[sectionMesh.position.x.toString()] = {};
             if (geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()] == null) geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()] = {};
