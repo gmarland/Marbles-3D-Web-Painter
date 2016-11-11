@@ -161,12 +161,16 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         return voxel;
     };
 
+    // This method loads a scene that was previously saved
     this.loadEntireScene = function(voxels) {
-        var geometries = {}; 
+        // This is a bit difficult to wrap your head around. The voxels may not be in order so we need to sort them and then build each
+        // of the geometries
 
         for (var i=0; i<voxels.length; i++) {
+            // Get the current scene mesh that we should be working on (i.e. the one for this voxels color and opacity)
             var sectionMesh = that.getSceneMesh(voxels[i]);
 
+            // Check that there is still some room on the end of the voxel chunk. If not, add a new chunck
             if ((sectionMesh.meshes.length === 0) || (sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
                 sectionMesh.meshes.push({
                     voxels: [],
@@ -174,45 +178,36 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 });
             }
 
+            // push this voxel onto the end of the end chunk and track which chunk it belongs to
             sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(voxels[i]);
 
             voxels[i].meshSection = sectionMesh.meshes.length;
 
+            // track this voxel as occupying this position
             var scenePosition = that.getScenePosition(voxels[i].position);
             scenePosition.voxel = voxels[i];
-
-            if (geometries[voxels[i].color] == null) geometries[voxels[i].color] = {};
-            if (geometries[voxels[i].color][voxels[i].opacity.toString()] == null) {
-                geometries[voxels[i].color][voxels[i].opacity.toString()] = {};
-                geometries[voxels[i].color][voxels[i].opacity.toString()].meshes = [];
-            }
-
-            if (geometries[voxels[i].color][voxels[i].opacity.toString()].meshes.length < voxels[i].meshSection) {
-                geometries[voxels[i].color][voxels[i].opacity.toString()].meshes.push(new THREE.Geometry());
-            }
-
-            try {
-                geometries[voxels[i].color][voxels[i].opacity.toString()].meshes[(voxels[i].meshSection-1)].merge(voxels[i].voxelMesh.geometry, voxels[i].voxelMesh.matrix);
-            }
-            catch (err) {
-                console.log(voxels[i].voxelMesh.geometry, err);   
-            }
         }
 
+        // loop through the chunked voxels and add the meshes
         for (var color in that._sceneMeshes) {
             for (var opacity in that._sceneMeshes[color]) {
-                for (var j=0; j<that._sceneMeshes[color][opacity].meshes.length; j++) {
-                    geometries[color][opacity].meshes[j].computeFaceNormals();
+                for (var i=0; i<that._sceneMeshes[color][opacity].meshes.length; i++) {
 
-                    var mesh = new THREE.Mesh(geometries[color][opacity].meshes[j], that._sceneMeshes[color][opacity].material);
+                    // build the geometry for the mesh
+                    var geometry = new THREE.Geometry();
+
+                    for (var j=0; j<that._sceneMeshes[color][opacity].meshes[i].voxels.length; j++) {
+                        var voxelMesh = that._sceneMeshes[color][opacity].meshes[i].voxels[j].voxelMesh;
+
+                        geometry.merge(voxelMesh.geometry, voxelMesh.matrix);
+                    }
                     
-                    that._sceneMeshes[color][opacity].meshes[j].mesh = mesh;
-                    that._scene.add(mesh);
-                }
+                    geometry.computeFaceNormals();
 
-                for (var j=0; j<geometries[color][opacity].meshes.length; j++) {
-                    geometries[color][opacity].meshes[j].dispose();
-                    geometries[color][opacity].meshes[j] = null;
+                    var mesh = new THREE.Mesh(geometry, that._sceneMeshes[color][opacity].material);
+                    
+                    that._sceneMeshes[color][opacity].meshes[i].mesh = mesh;
+                    that._scene.add(mesh);
                 }
             }   
         }
