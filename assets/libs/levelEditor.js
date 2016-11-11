@@ -363,12 +363,9 @@
             var positioningCube = that.getPositioningVoxel()
             positioningCube.position.x = that._positioningCube.position.x;
             positioningCube.position.y = that._positioningCube.position.y;
-            positioningCube.position.z = that._positioningCube.position.z
+            positioningCube.position.z = that._positioningCube.position.z;
 
-            that._scene.remove(that._positioningCube);
-            that._positioningCube = null;
-            that._positioningCube = positioningCube;
-            that._scene.add(that._positioningCube);
+            that.addNewPositioningCube(positioningCube);
         };
 
         this.updatePositioningVoxelColor = function() {
@@ -380,8 +377,17 @@
             that._positioningCube.rotation.y = 0;
             that._positioningCube.rotation.z = 0;
 
-            that._positioningCube.rotateX(that._yRotation);
             that._positioningCube.rotateY(that._xRotation);
+            that._positioningCube.rotateX(that._yRotation);
+        };
+
+        this.addNewPositioningCube = function(positioningCube) {
+            that._scene.remove(that._positioningCube);
+            that._positioningCube.geometry.dispose();
+            that._positioningCube.material.dispose();
+            that._positioningCube = null;
+            that._positioningCube = positioningCube;
+            that._scene.add(that._positioningCube);
         };
 
         // ----- Mouse binding events
