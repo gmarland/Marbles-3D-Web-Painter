@@ -1,7 +1,7 @@
 THREE.MarblesViewEngine = function (scene, voxelSize) {
 	var that = this;
 
-    this._chunkSize = 20;
+    this._chunkSize = 100;
 
 	this._scene = scene;
 
@@ -9,7 +9,8 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 
     this._materials = {};
 
-    this._sceneMeshes = null;
+    this._sceneMeshes = {};
+    this._scenePositions = {};
 
     this._marblesGeometry = THREE.MarblesGeometry(voxelSize);
 
@@ -50,26 +51,26 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
     };
 
     this.getSceneMesh = function(voxel) {
-        var sectionX = Math.floor(voxel.position.x/that._chunkSize),
-            sectionY = Math.floor(voxel.position.y/that._chunkSize),
-            sectionZ = Math.floor(voxel.position.z/that._chunkSize);
+        if (that._sceneMeshes[voxel.color] == null) that._sceneMeshes[voxel.color] = {};
 
-        if (that._sceneMeshes[sectionX.toString()] == null) that._sceneMeshes[sectionX.toString()] = {};
-        if (that._sceneMeshes[sectionX.toString()][sectionY.toString()] == null) that._sceneMeshes[sectionX.toString()][sectionY.toString()] = {};
-        if (that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()] == null) that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()] = {};
+        if (that._sceneMeshes[voxel.color][voxel.opacity.toString()] == null) {
+            that._sceneMeshes[voxel.color][voxel.opacity.toString()] = {};
 
-        if (that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color] == null) that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color] = {};
-
-        if (that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()] == null) {
-            that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()] = {};
-
-            that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()].position = { x: sectionX, y: sectionY, z: sectionZ };
-            that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()].mesh = null;
-            that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()].material = that.createMaterial(voxel);
-            that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()].voxels = [];
+            that._sceneMeshes[voxel.color][voxel.opacity.toString()].material = that.createMaterial(voxel);
+            that._sceneMeshes[voxel.color][voxel.opacity.toString()].meshes = [];
         }
 
-        return that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()];
+        return that._sceneMeshes[voxel.color][voxel.opacity.toString()];
+    }
+
+    this.getScenePosition = function(position) {
+        if (that._scenePositions[position.x.toString()] == null) that._scenePositions[position.x.toString()] = {};
+        if (that._scenePositions[position.x.toString()][position.y.toString()] == null) that._scenePositions[position.x.toString()][position.y.toString()] = {};
+        if (that._scenePositions[position.x.toString()][position.y.toString()][position.z.toString()] == null) that._scenePositions[position.x.toString()][position.y.toString()][position.z.toString()] = {
+            voxel: null
+        };
+
+        return that._scenePositions[position.x.toString()][position.y.toString()][position.z.toString()];
     }
 
     this.createCube = function(sceneVoxel) {
@@ -161,58 +162,59 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
     };
 
     this.loadEntireScene = function(voxels) {
-        if (that._sceneMeshes) {
-            for (var color in that._sceneMeshes) {
-                for (var opacity in that._sceneMeshes[color]) {
-                    that._scene.remove(new THREE.Mesh(that._sceneMeshes[color][opacity].geometry, that._sceneMeshes[color][opacity].material));
-                }   
-            }
-
-            that._sceneMeshes = null;
-        }
-
-        that._sceneMeshes = {};
-
         var geometries = {}; 
 
         for (var i=0; i<voxels.length; i++) {
             var sectionMesh = that.getSceneMesh(voxels[i]);
-            sectionMesh.voxels.push(voxels[i]);
 
-            if (geometries[sectionMesh.position.x.toString()] == null) geometries[sectionMesh.position.x.toString()] = {};
-            if (geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()] == null) geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()] = {};
-            if (geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()] == null) geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()] = {};
+            if ((sectionMesh.meshes.length === 0) || (sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
+                sectionMesh.meshes.push({
+                    voxels: [],
+                    mesh: null
+                });
+            }
 
-            if (geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()][voxels[i].color] == null) geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()][voxels[i].color] = {};
-            if (geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()][voxels[i].color][voxels[i].opacity.toString()] == null) {
-                geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()][voxels[i].color][voxels[i].opacity.toString()] = new THREE.Geometry();
+            sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(voxels[i]);
+
+            voxels[i].meshSection = sectionMesh.meshes.length;
+
+            var scenePosition = that.getScenePosition(voxels[i].position);
+            scenePosition.voxel = voxels[i];
+
+            if (geometries[voxels[i].color] == null) geometries[voxels[i].color] = {};
+            if (geometries[voxels[i].color][voxels[i].opacity.toString()] == null) {
+                geometries[voxels[i].color][voxels[i].opacity.toString()] = {};
+                geometries[voxels[i].color][voxels[i].opacity.toString()].meshes = [];
+            }
+
+            if (geometries[voxels[i].color][voxels[i].opacity.toString()].meshes.length < voxels[i].meshSection) {
+                geometries[voxels[i].color][voxels[i].opacity.toString()].meshes.push(new THREE.Geometry());
             }
 
             try {
-                geometries[sectionMesh.position.x.toString()][sectionMesh.position.y.toString()][sectionMesh.position.z.toString()][voxels[i].color][voxels[i].opacity.toString()].merge(voxels[i].voxelMesh.geometry, voxels[i].voxelMesh.matrix);
+                geometries[voxels[i].color][voxels[i].opacity.toString()].meshes[(voxels[i].meshSection-1)].merge(voxels[i].voxelMesh.geometry, voxels[i].voxelMesh.matrix);
             }
             catch (err) {
                 console.log(voxels[i].voxelMesh.geometry, err);   
             }
         }
 
-        for (var x in that._sceneMeshes) {
-            for (var y in that._sceneMeshes[x]) {
-                for (var z in that._sceneMeshes[x][y]) {
-                    for (var color in that._sceneMeshes[x][y][z]) {
-                        for (var opacity in that._sceneMeshes[x][y][z][color]) {
-                            geometries[x][y][z][color][opacity].computeFaceNormals();
+        for (var color in that._sceneMeshes) {
+            for (var opacity in that._sceneMeshes[color]) {
+                for (var j=0; j<that._sceneMeshes[color][opacity].meshes.length; j++) {
+                    geometries[color][opacity].meshes[j].computeFaceNormals();
 
-                            that._sceneMeshes[x][y][z][color][opacity].mesh = new THREE.Mesh(geometries[x][y][z][color][opacity], that._sceneMeshes[x][y][z][color][opacity].material);
-
-                            that._scene.add(that._sceneMeshes[x][y][z][color][opacity].mesh);
-
-                            geometries[x][y][z][color][opacity].dispose();
-                            geometries[x][y][z][color][opacity] = null;
-                        }   
-                    }
+                    var mesh = new THREE.Mesh(geometries[color][opacity].meshes[j], that._sceneMeshes[color][opacity].material);
+                    
+                    that._sceneMeshes[color][opacity].meshes[j].mesh = mesh;
+                    that._scene.add(mesh);
                 }
-            }
+
+                for (var j=0; j<geometries[color][opacity].meshes.length; j++) {
+                    geometries[color][opacity].meshes[j].dispose();
+                    geometries[color][opacity].meshes[j] = null;
+                }
+            }   
         }
     }
 
@@ -237,27 +239,23 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 		getScene: function() {
 			var scene = [];
 
-            for (var x in that._sceneMeshes) {
-                for (var y in that._sceneMeshes[x]) {
-                    for (var z in that._sceneMeshes[x][y]) {
-                        for (var color in that._sceneMeshes[x][y][z]) {
-                            for (var opacity in that._sceneMeshes[x][y][z][color]) {
-                                var sceneMesh = that._sceneMeshes[x][y][z][color][opacity];
+            for (var color in that._sceneMeshes) {
+                for (var opacity in that._sceneMeshes[color]) {
+                    var sceneMesh = that._sceneMeshes[color][opacity];
 
-                                for (var i=0; i<sceneMesh.voxels.length; i++) {
-                                    scene.push({
-                                        position: sceneMesh.voxels[i].position,
-                                        shape: sceneMesh.voxels[i].shape,
-                                        color: sceneMesh.voxels[i].color,
-                                        opacity: sceneMesh.voxels[i].opacity,
-                                        xRotation: sceneMesh.voxels[i].xRotation,
-                                        yRotation: sceneMesh.voxels[i].yRotation
-                                    });
-                                }
-                            }   
+                    for (var i=0; i<sceneMesh.meshes.length; i++) {
+                        for (var i=0; i<sceneMesh.meshes[i].voxels.length; i++) {
+                            scene.push({
+                                position: sceneMesh.meshes[i].voxels[j].position,
+                                shape: sceneMesh.meshes[i].voxels[j].shape,
+                                color: sceneMesh.voxels[j].color,
+                                opacity: sceneMesh.meshes[i].voxels[j].opacity,
+                                xRotation: sceneMesh.meshes[i].voxels[j].xRotation,
+                                yRotation: sceneMesh.meshes[i].voxels[j].yRotation
+                            });
                         }
                     }
-                }
+                }   
             }
 
             return scene;
@@ -270,30 +268,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 z: ((position.z-(that._voxelSize/2))/that._voxelSize)
             };
 
-            var sectionX = Math.floor(spacePosition.x/that._chunkSize),
-                sectionY = Math.floor(spacePosition.y/that._chunkSize),
-                sectionZ = Math.floor(spacePosition.z/that._chunkSize);
-
-            if (that._sceneMeshes[sectionX.toString()] == null) return null;
-            if (that._sceneMeshes[sectionX.toString()][sectionY.toString()] == null) return null;
-            if (that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()] == null) return null;
-
-            for (var color in that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()]) {
-                for (var opacity in that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][color]) {
-                    var sceneMesh = that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][color][opacity];
-
-                    for (var i=0; i<sceneMesh.voxels.length; i++) {
-                        if ((sceneMesh.voxels[i].position.x === spacePosition.x) &&
-                            (sceneMesh.voxels[i].position.y === spacePosition.y) && 
-                            (sceneMesh.voxels[i].position.z === spacePosition.z)) {
-                            return sceneMesh.voxels[i];
-                        }
-                    }
-
-                }   
-            }
-
-            return null;
+            return that.getScenePosition(spacePosition).voxel;
         },
 
         addVoxel : function(shape, position, selectedColor, opacity, xRotation, yRotation) {
@@ -325,27 +300,39 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
             if (newVoxel) {        
                 this.removeVoxel(position);
 
-                var sceneMesh = that.getSceneMesh(newVoxel);
+                var sectionMesh = that.getSceneMesh(newVoxel);
 
-                sceneMesh.voxels.push(newVoxel);
+                if ((sectionMesh.meshes.length === 0) || (sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
+                    sectionMesh.meshes.push({
+                        voxels: [],
+                        mesh: null
+                    });
+                }
+
+                sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(newVoxel);
+
+                newVoxel.meshSection = sectionMesh.meshes.length;
+
+                var scenePosition = that.getScenePosition(newVoxel.position);
+                scenePosition.voxel = newVoxel;
 
                 var geometry = new THREE.Geometry();
 
-                for (var i=0; i<sceneMesh.voxels.length; i++) {
+                for (var i=0; i<sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length; i++) {
                     try {
-                        geometry.merge(sceneMesh.voxels[i].voxelMesh.geometry, sceneMesh.voxels[i].voxelMesh.matrix);
+                        geometry.merge(sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh.geometry, sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh.matrix);
                     }
                     catch (err) {
-                        console.log(sceneMesh.voxels[i].voxelMesh, err);   
+                        console.log(sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh, err);   
                     }
                 }
 
                 geometry.computeFaceNormals();
 
-                if (sceneMesh.mesh !== null) that._scene.remove(sceneMesh.mesh);
-                sceneMesh.mesh = new THREE.Mesh(geometry, sceneMesh.material);
+                if (sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh !== null) that._scene.remove(sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh);
+                sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh = new THREE.Mesh(geometry, sectionMesh.material);
 
-                that._scene.add(sceneMesh.mesh);
+                that._scene.add(sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh);
 
                 geometry.dispose();
                 geometry = null;
@@ -356,37 +343,85 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
             if (position !== null) {    
                 var exisitingVoxel = this.getVoxelAtPosition(position);
 
-                if (exisitingVoxel) {
-                    var existingSceneMesh = that.getSceneMesh(exisitingVoxel);
+                if (exisitingVoxel != null) {
+                    var sceneMesh = that.getSceneMesh(exisitingVoxel);
 
-                    for (var i=(existingSceneMesh.voxels.length-1); i>=0; i--) {
-                        if ((existingSceneMesh.voxels[i].position.x === exisitingVoxel.position.x) &&
-                            (existingSceneMesh.voxels[i].position.y === exisitingVoxel.position.y) && 
-                            (existingSceneMesh.voxels[i].position.z === exisitingVoxel.position.z)) {
-                            existingSceneMesh.voxels.splice(i, 1);
+                    var meshArrayPositions = sceneMesh.meshes.splice((exisitingVoxel.meshSection-1), 1);
+
+                    if (meshArrayPositions.length > 0) {
+                        var meshArray = meshArrayPositions[0];
+
+                        for (var i=(meshArray.voxels.length-1); i>=0; i--) {
+                            if ((meshArray.voxels[i].position.x == exisitingVoxel.position.x) && 
+                                (meshArray.voxels[i].position.y == exisitingVoxel.position.y) && 
+                                (meshArray.voxels[i].position.z == exisitingVoxel.position.z)) {
+                                meshArray.voxels.splice(i, 1);
+                            }
+                        }
+
+                        if (meshArray.voxels.length > 0) {
+                            for (var i=0; i<meshArray.voxels.length; i++) {
+                                if ((sceneMesh.meshes.length === 0) || (sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
+                                    sceneMesh.meshes.push({
+                                        voxels: [],
+                                        mesh: null
+                                    });
+                                }
+
+                                sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.push(meshArray.voxels[i]);
+                            }
+
+                            for (var i=0; i<sceneMesh.meshes.length; i++) {
+                                for (var j=0; j<sceneMesh.meshes[i].voxels.length; j++) {
+                                    sceneMesh.meshes[i].voxels[j].meshSection = (i+1);
+                                }
+                            }
+
+                            if (sceneMesh.meshes.length >= 2) {
+                                var existingGeometry = new THREE.Geometry();
+
+                                for (var i=0; i<sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels.length; i++) {
+                                    try {
+                                        existingGeometry.merge(sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh.geometry, sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh.matrix);
+                                    }
+                                    catch (err) {
+                                        console.log(sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh, err);   
+                                    }
+                                }
+                            }
+
+                            if (sceneMesh.meshes.length >= 1) {
+                                var newGeometry = new THREE.Geometry();
+
+                                for (var i=0; i<sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.length; i++) {
+                                    try {
+                                        newGeometry.merge(sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh.geometry, sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh.matrix);
+                                    }
+                                    catch (err) {
+                                        console.log(sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh, err);   
+                                    }
+                                }
+                            }
+
+                            if (sceneMesh.meshes.length >= 2) {
+                                var existingMesh = new THREE.Mesh(existingGeometry, sceneMesh.material);
+
+                                that._scene.remove(sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh);
+                                that._scene.add(existingMesh);
+
+                                sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh = null;
+                                sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh = existingMesh;
+                            }
+                            
+                            if (sceneMesh.meshes.length >= 1) {
+                                var newMesh = new THREE.Mesh(newGeometry, sceneMesh.material);
+                                if (meshArray.mesh !== null) that._scene.remove(meshArray.mesh);
+                                that._scene.add(newMesh);
+
+                                sceneMesh.meshes[(sceneMesh.meshes.length-1)].mesh = newMesh;
+                            }
                         }
                     }
-
-                    var existingGeometry = new THREE.Geometry();
-
-                    for (var i=0; i<existingSceneMesh.voxels.length; i++) {
-                        try {
-                            existingGeometry.merge(existingSceneMesh.voxels[i].voxelMesh.geometry, existingSceneMesh.voxels[i].voxelMesh.matrix);
-                        }
-                        catch (err) {
-                            console.log(existingSceneMesh.voxels[i].voxelMesh, err);   
-                        }
-                    }
-
-                    existingGeometry.computeFaceNormals();
-
-                    if (existingSceneMesh.mesh !== null) that._scene.remove(existingSceneMesh.mesh);
-                    existingSceneMesh.mesh = new THREE.Mesh(existingGeometry, existingSceneMesh.material);
-
-                    that._scene.add(existingSceneMesh.mesh);
-
-                    existingGeometry.dispose();
-                    existingGeometry = null;
                 }
             }
         }
