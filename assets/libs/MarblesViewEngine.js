@@ -1,6 +1,8 @@
 THREE.MarblesViewEngine = function (scene, voxelSize) {
 	var that = this;
 
+    this._chunkSize = 20;
+
 	this._scene = scene;
 
 	this._voxelSize = voxelSize;
@@ -48,9 +50,9 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
     };
 
     this.getSceneMesh = function(voxel) {
-        var sectionX = Math.floor(voxel.position.x/10),
-            sectionY = Math.floor(voxel.position.y/10),
-            sectionZ = Math.floor(voxel.position.z/10);
+        var sectionX = Math.floor(voxel.position.x/that._chunkSize),
+            sectionY = Math.floor(voxel.position.y/that._chunkSize),
+            sectionZ = Math.floor(voxel.position.z/that._chunkSize);
 
         if (that._sceneMeshes[sectionX.toString()] == null) that._sceneMeshes[sectionX.toString()] = {};
         if (that._sceneMeshes[sectionX.toString()][sectionY.toString()] == null) that._sceneMeshes[sectionX.toString()][sectionY.toString()] = {};
@@ -70,7 +72,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         return that._sceneMeshes[sectionX.toString()][sectionY.toString()][sectionZ.toString()][voxel.color][voxel.opacity.toString()];
     }
 
-    this.addCube = function(sceneVoxel) {
+    this.createCube = function(sceneVoxel) {
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
         var voxelMesh = that.createMesh(sceneVoxel, that._marblesGeometry.getCubeGeometry(), voxelMaterial);
@@ -92,7 +94,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         return voxel;
     };
 
-    this.addTriangle = function(sceneVoxel) {
+    this.createTriangle = function(sceneVoxel) {
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
         var voxelMesh = that.createMesh(sceneVoxel, that._marblesGeometry.getTriangleGeometry(), voxelMaterial);
@@ -114,7 +116,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         return voxel;
     };
 
-    this.addPyramid = function(sceneVoxel) {
+    this.createPyramid = function(sceneVoxel) {
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
         var voxelMesh = that.createMesh(sceneVoxel, that._marblesGeometry.getPyramidGeometry(), voxelMaterial);
@@ -136,7 +138,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         return voxel;
     };
 
-    this.addCorner = function(sceneVoxel) {
+    this.createCorner = function(sceneVoxel) {
         var voxelMaterial = that.createMaterial(sceneVoxel);
 
         var voxelMesh = that.createMesh(sceneVoxel, that._marblesGeometry.getCornerGeometry(), voxelMaterial);
@@ -222,10 +224,10 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
     		    for (var i=0; i<sceneVoxels.length; i++) {
                     if (sceneVoxels[i].opacity == null) sceneVoxels[i].opacity = 100;
 
-    		    	if (sceneVoxels[i].shape == "cube") voxels.push(that.addCube(sceneVoxels[i]));
-    		    	else if (sceneVoxels[i].shape == "triangle") voxels.push(that.addTriangle(sceneVoxels[i]));
-    		    	else if (sceneVoxels[i].shape == "pyramid") voxels.push(that.addPyramid(sceneVoxels[i]));
-                    else if (sceneVoxels[i].shape == "corner") voxels.push(that.addCorner(sceneVoxels[i]));
+    		    	if (sceneVoxels[i].shape == "cube") voxels.push(that.createCube(sceneVoxels[i]));
+    		    	else if (sceneVoxels[i].shape == "triangle") voxels.push(that.createTriangle(sceneVoxels[i]));
+    		    	else if (sceneVoxels[i].shape == "pyramid") voxels.push(that.createPyramid(sceneVoxels[i]));
+                    else if (sceneVoxels[i].shape == "corner") voxels.push(that.createCorner(sceneVoxels[i]));
     		    }
 
                 that.loadEntireScene(voxels);
@@ -268,9 +270,9 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 z: ((position.z-(that._voxelSize/2))/that._voxelSize)
             };
 
-            var sectionX = Math.floor(spacePosition.x/10),
-                sectionY = Math.floor(spacePosition.y/10),
-                sectionZ = Math.floor(spacePosition.z/10);
+            var sectionX = Math.floor(spacePosition.x/that._chunkSize),
+                sectionY = Math.floor(spacePosition.y/that._chunkSize),
+                sectionZ = Math.floor(spacePosition.z/that._chunkSize);
 
             if (that._sceneMeshes[sectionX.toString()] == null) return null;
             if (that._sceneMeshes[sectionX.toString()][sectionY.toString()] == null) return null;
@@ -315,10 +317,10 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 
             var newVoxel;
 
-            if (shape.toLowerCase() == "square") newVoxel = that.addCube(sceneVoxel);
-            else if (shape.toLowerCase() == "triangle") newVoxel = that.addTriangle(sceneVoxel);
-            else if (shape.toLowerCase() == "pyramid") newVoxel = that.addPyramid(sceneVoxel);
-            else if (shape.toLowerCase() == "corner") newVoxel = that.addCorner(sceneVoxel);
+            if (shape.toLowerCase() == "square") newVoxel = that.createCube(sceneVoxel);
+            else if (shape.toLowerCase() == "triangle") newVoxel = that.createTriangle(sceneVoxel);
+            else if (shape.toLowerCase() == "pyramid") newVoxel = that.createPyramid(sceneVoxel);
+            else if (shape.toLowerCase() == "corner") newVoxel = that.createCorner(sceneVoxel);
 
             if (newVoxel) {        
                 this.removeVoxel(position);

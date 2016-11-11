@@ -357,14 +357,25 @@
 				$("#opacity").blur();
 			}, false);
 
+			document.addEventListener('keydown', function(e) {
+				var keyCode = e.code.toLowerCase();
+
+				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(true);
+				else if (keyCode == "arrowdown") levelEditor.setLevelDownSelected(true);
+			});
+
 			document.addEventListener('keyup', function(e) {
 				var keyCode = e.code.toLowerCase();
-				var level = levelEditor.getLevel();
 
-				if (keyCode == "arrowup") levelEditor.setLevel((level+1));
-				else if (keyCode == "arrowdown") levelEditor.setLevel((level-1));
+				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(false);
+				else if (keyCode == "arrowdown") levelEditor.setLevelDownSelected(false);
 				else if (keyCode == "arrowleft") levelEditor.rotateGridLeft();
 				else if (keyCode == "arrowright") levelEditor.rotateGridRight();
+
+				if (e.keyCode == 13) {
+					$("#color-select").blur();
+					document.getElementById('color-select').jscolor.hide();
+				}
 			}, false);
 
 
@@ -375,8 +386,8 @@
 				if (e.deltaY) {
 					var level = levelEditor.getLevel();
 
-					if (e.deltaY < 0) levelEditor.setLevel((level+1));
-					else levelEditor.setLevel((level-1));
+					if (e.deltaY < 0) levelEditor.moveLevelUp();
+					else levelEditor.moveLevelDown();
 				}
 			}
 

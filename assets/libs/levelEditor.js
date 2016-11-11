@@ -48,6 +48,8 @@
 
         this._voxelSize = 10;
 
+        this._isLevelUpSelected = false;
+        this._isLevelDownSelected = false;
         this._level = 0;
 
         this._selectedTool = "painter";
@@ -186,8 +188,24 @@
         };
 
         this.render = function() {
+            var previousTime = that._clock.getElapsedTime();
+            var previousLevel = that._level;
+
             function updateScene() {
-               if (that._controls) that._controls.update(that._clock.getDelta());
+               if (that._controls) {
+                    that._controls.update(that._clock.getDelta());
+
+                    if ((that._clock.getElapsedTime()-previousTime) >= 0.1) {
+                        previousTime = that._clock.getElapsedTime();
+
+                        if (that._level == previousLevel) {
+                            if (that._isLevelUpSelected) that.setLevel((that._level+1));
+                            if (that._isLevelDownSelected) that.setLevel((that._level-1));
+                        }
+
+                        previousLevel = that._level;
+                    }
+                }
             };
 
             function renderScene() {
@@ -215,6 +233,40 @@
         }
 
         // ----- Methods for creating base plane
+
+        this.setLevel = function(level) {
+            var maxLevel = (that._basePlaneWidth/that._voxelSize)/2,
+                minLevel = ((that._basePlaneWidth/that._voxelSize)/2)*-1;
+
+            if ((that._controls.enabled) && (level < maxLevel) && (level > minLevel)) {
+                if (that._gridRotation === "h") {
+                    that._basePlaneTop.position.y = (level*that._voxelSize);
+                    that._basePlaneBottom.position.y = (level*that._voxelSize);
+                    that._baseGrid.position.y = (level*that._voxelSize);
+
+                    that._positioningCube.position.y = (level*that._voxelSize)+(that._voxelSize/2);
+                }
+                else if (that._gridRotation === "vz") {
+                    that._basePlaneTop.position.z = (level*that._voxelSize)*-1;
+                    that._basePlaneBottom.position.z = (level*that._voxelSize)*-1;
+                    that._baseGrid.position.z = (level*that._voxelSize)*-1;
+
+                    that._positioningCube.position.z = ((level*that._voxelSize)+(that._voxelSize/2))*-1;
+                }
+                else if (that._gridRotation === "vx") {
+                    that._basePlaneTop.position.x = (level*that._voxelSize);
+                    that._basePlaneBottom.position.x = (level*that._voxelSize);
+                    that._baseGrid.position.x = (level*that._voxelSize);
+
+                    that._positioningCube.position.x = (level*that._voxelSize)+(that._voxelSize/2);
+                }
+
+                that._level = level;
+
+                if (that._isPainting) that.paint();
+                else if (that._isErasing) that.erase();
+            }
+        };
 
         this.getBasePlaneTop = function() {
             var geometry = new THREE.PlaneBufferGeometry(that._basePlaneWidth, that._basePlaneWidth);
@@ -576,39 +628,25 @@
 	        	return that._level;
 	        },
 
-	        setLevel: function(level) {
-                var maxLevel = (that._basePlaneWidth/that._voxelSize)/2,
-                    minLevel = ((that._basePlaneWidth/that._voxelSize)/2)*-1;
+            moveLevelUp: function() {
+                that.setLevel((that._level+1));
+            },
 
-	        	if ((that._controls.enabled) && (level < maxLevel) && (level > minLevel)) {
-                    if (that._gridRotation === "h") {
-                        that._basePlaneTop.position.y = (level*that._voxelSize);
-                        that._basePlaneBottom.position.y = (level*that._voxelSize);
-                        that._baseGrid.position.y = (level*that._voxelSize);
+            setLevelUpSelected: function(selected) {
+                if (selected) that.setLevel((that._level+1));
 
-                        that._positioningCube.position.y = (level*that._voxelSize)+(that._voxelSize/2);
-                    }
-                    else if (that._gridRotation === "vz") {
-                        that._basePlaneTop.position.z = (level*that._voxelSize)*-1;
-                        that._basePlaneBottom.position.z = (level*that._voxelSize)*-1;
-                        that._baseGrid.position.z = (level*that._voxelSize)*-1;
+                that._isLevelUpSelected = selected;
+            },
 
-                        that._positioningCube.position.z = ((level*that._voxelSize)+(that._voxelSize/2))*-1;
-                    }
-                    else if (that._gridRotation === "vx") {
-                        that._basePlaneTop.position.x = (level*that._voxelSize);
-                        that._basePlaneBottom.position.x = (level*that._voxelSize);
-                        that._baseGrid.position.x = (level*that._voxelSize);
+            moveLevelDown: function() {
+                that.setLevel((that._level-1));
+            },
 
-                        that._positioningCube.position.x = (level*that._voxelSize)+(that._voxelSize/2);
-                    }
+            setLevelDownSelected: function(selected) {
+                if (selected) that.setLevel((that._level-1));
 
-			    	that._level = level;
-
-                    if (that._isPainting) that.paint();
-                    else if (that._isErasing) that.erase();
-			    }
-	        },
+                that._isLevelDownSelected = selected;
+            },
 
             setColor: function(color) {
                 that._selectedColor = "#" + color;
