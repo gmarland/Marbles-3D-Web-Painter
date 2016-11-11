@@ -53,7 +53,7 @@
         this._level = 0;
 
         this._selectedTool = "painter";
-        this._selectedShape = "square";
+        this._selectedShape = "cube";
         this._selectedOpacity = 100;
         this._selectedColor = "#000000";
 
@@ -346,7 +346,7 @@
         this.getPositioningVoxel = function() {
 			var positioningGeometry;
 
-            if (that._selectedShape == "square") positioningGeometry = that._marblesGeometry.getCubeGeometry();
+            if (that._selectedShape == "cube") positioningGeometry = that._marblesGeometry.getCubeGeometry();
             else if (that._selectedShape == "triangle") positioningGeometry = that._marblesGeometry.getTriangleGeometry();
             else if (that._selectedShape == "pyramid") positioningGeometry = that._marblesGeometry.getPyramidGeometry();
             else if (that._selectedShape == "corner") positioningGeometry = that._marblesGeometry.getCornerGeometry();

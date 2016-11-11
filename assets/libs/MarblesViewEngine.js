@@ -244,11 +244,11 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                     var sceneMesh = that._sceneMeshes[color][opacity];
 
                     for (var i=0; i<sceneMesh.meshes.length; i++) {
-                        for (var i=0; i<sceneMesh.meshes[i].voxels.length; i++) {
+                        for (var j=0; j<sceneMesh.meshes[i].voxels.length; j++) {
                             scene.push({
                                 position: sceneMesh.meshes[i].voxels[j].position,
                                 shape: sceneMesh.meshes[i].voxels[j].shape,
-                                color: sceneMesh.voxels[j].color,
+                                color: sceneMesh.meshes[i].voxels[j].color,
                                 opacity: sceneMesh.meshes[i].voxels[j].opacity,
                                 xRotation: sceneMesh.meshes[i].voxels[j].xRotation,
                                 yRotation: sceneMesh.meshes[i].voxels[j].yRotation
@@ -272,73 +272,82 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         },
 
         addVoxel : function(shape, position, selectedColor, opacity, xRotation, yRotation) {
-            var spacePosition = {
-                x: ((position.x-(that._voxelSize/2))/that._voxelSize),
-                y: ((position.y-(that._voxelSize/2))/that._voxelSize),
-                z: ((position.z-(that._voxelSize/2))/that._voxelSize)
-            };
+            var exisitingVoxel = this.getVoxelAtPosition(position);
 
-            var sceneVoxel = {
-                position: {
-                    x: spacePosition.x,
-                    y: spacePosition.y,
-                    z: spacePosition.z
-                },
-                color: selectedColor,
-                opacity: opacity,
-                xRotation: xRotation,
-                yRotation: yRotation
-            }
+            // Check that we're not readding the same shape, happens because we move with snap toos
+            if ((exisitingVoxel == null) || 
+                ((exisitingVoxel.shape != shape) || (exisitingVoxel.color != selectedColor) || (exisitingVoxel.opacity != opacity))) {
+                var spacePosition = {
+                    x: ((position.x-(that._voxelSize/2))/that._voxelSize),
+                    y: ((position.y-(that._voxelSize/2))/that._voxelSize),
+                    z: ((position.z-(that._voxelSize/2))/that._voxelSize)
+                };
 
-            var newVoxel;
-
-            if (shape.toLowerCase() == "square") newVoxel = that.createCube(sceneVoxel);
-            else if (shape.toLowerCase() == "triangle") newVoxel = that.createTriangle(sceneVoxel);
-            else if (shape.toLowerCase() == "pyramid") newVoxel = that.createPyramid(sceneVoxel);
-            else if (shape.toLowerCase() == "corner") newVoxel = that.createCorner(sceneVoxel);
-
-            if (newVoxel) {        
-                this.removeVoxel(position);
-
-                var sectionMesh = that.getSceneMesh(newVoxel);
-
-                if ((sectionMesh.meshes.length === 0) || (sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
-                    sectionMesh.meshes.push({
-                        voxels: [],
-                        mesh: null
-                    });
+                var sceneVoxel = {
+                    position: {
+                        x: spacePosition.x,
+                        y: spacePosition.y,
+                        z: spacePosition.z
+                    },
+                    color: selectedColor,
+                    opacity: opacity,
+                    xRotation: xRotation,
+                    yRotation: yRotation
                 }
 
-                sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(newVoxel);
+                var newVoxel;
 
-                newVoxel.meshSection = sectionMesh.meshes.length;
+                if (shape.toLowerCase() == "cube") newVoxel = that.createCube(sceneVoxel);
+                else if (shape.toLowerCase() == "triangle") newVoxel = that.createTriangle(sceneVoxel);
+                else if (shape.toLowerCase() == "pyramid") newVoxel = that.createPyramid(sceneVoxel);
+                else if (shape.toLowerCase() == "corner") newVoxel = that.createCorner(sceneVoxel);
 
-                var scenePosition = that.getScenePosition(newVoxel.position);
-                scenePosition.voxel = newVoxel;
+                if (newVoxel) {        
+                    this.removeVoxel(position);
 
-                var geometry = new THREE.Geometry();
+                    var sectionMesh = that.getSceneMesh(newVoxel);
 
-                for (var i=0; i<sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length; i++) {
-                    try {
-                        geometry.merge(sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh.geometry, sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh.matrix);
+                    if ((sectionMesh.meshes.length === 0) || (sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
+                        sectionMesh.meshes.push({
+                            voxels: [],
+                            mesh: null
+                        });
                     }
-                    catch (err) {
-                        console.log(sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh, err);   
+
+                    sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(newVoxel);
+
+                    newVoxel.meshSection = sectionMesh.meshes.length;
+
+                    var scenePosition = that.getScenePosition(newVoxel.position);
+                    scenePosition.voxel = newVoxel;
+
+                    var geometry = new THREE.Geometry();
+
+                    for (var i=0; i<sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.length; i++) {
+                        try {
+                            geometry.merge(sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh.geometry, sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh.matrix);
+                        }
+                        catch (err) {
+                            console.log(sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels[i].voxelMesh, err);   
+                        }
                     }
+
+                    geometry.computeFaceNormals();
+
+                    if (sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh !== null) that._scene.remove(sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh);
+                    sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh = new THREE.Mesh(geometry, sectionMesh.material);
+
+                    that._scene.add(sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh);
+
+                    geometry.dispose();
+                    geometry = null;
                 }
-
-                geometry.computeFaceNormals();
-
-                if (sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh !== null) that._scene.remove(sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh);
-                sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh = new THREE.Mesh(geometry, sectionMesh.material);
-
-                that._scene.add(sectionMesh.meshes[(sectionMesh.meshes.length-1)].mesh);
-
-                geometry.dispose();
-                geometry = null;
             }
     	},
 
+        // *****EXPLAINING: The material voxels are broke into chunks. We're basically going to get the chunk for that material
+        //                  and remove the voxel and then add all the voxels from that chunk onto the end of the last chunk. That
+        //                  means we only have to delete the last 2 chunks if on a delete.
 		removeVoxel: function(position) {
             if (position !== null) {    
                 var exisitingVoxel = this.getVoxelAtPosition(position);
@@ -346,80 +355,111 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 if (exisitingVoxel != null) {
                     var sceneMesh = that.getSceneMesh(exisitingVoxel);
 
-                    var meshArrayPositions = sceneMesh.meshes.splice((exisitingVoxel.meshSection-1), 1);
+                    // get the material section fpr the voxel being removed
+                    var sceneMeshSections = sceneMesh.meshes.splice((exisitingVoxel.meshSection-1), 1);
 
-                    if (meshArrayPositions.length > 0) {
-                        var meshArray = meshArrayPositions[0];
+                    if (sceneMeshSections.length > 0) {
 
-                        for (var i=(meshArray.voxels.length-1); i>=0; i--) {
-                            if ((meshArray.voxels[i].position.x == exisitingVoxel.position.x) && 
-                                (meshArray.voxels[i].position.y == exisitingVoxel.position.y) && 
-                                (meshArray.voxels[i].position.z == exisitingVoxel.position.z)) {
-                                meshArray.voxels.splice(i, 1);
+                        // there should only be one but take the first one anyway
+                        var sceneMeshSection = sceneMeshSections[0];
+
+                        // remove the voxel at the position specifiect
+                        for (var i=(sceneMeshSection.voxels.length-1); i>=0; i--) {
+                            if ((sceneMeshSection.voxels[i].position.x == exisitingVoxel.position.x) && 
+                                (sceneMeshSection.voxels[i].position.y == exisitingVoxel.position.y) && 
+                                (sceneMeshSection.voxels[i].position.z == exisitingVoxel.position.z)) {
+                                sceneMeshSection.voxels.splice(i, 1);
                             }
                         }
 
-                        if (meshArray.voxels.length > 0) {
-                            for (var i=0; i<meshArray.voxels.length; i++) {
+                        // remove the voxel in the positioning hash set (set null at least)
+                        that.getScenePosition(exisitingVoxel.position).voxel.voxelMesh.geometry.dispose();
+                        that.getScenePosition(exisitingVoxel.position).voxel.voxelMesh.material.dispose();
+                        that.getScenePosition(exisitingVoxel.position).voxel.voxelMesh = null;
+                        that.getScenePosition(exisitingVoxel.position).voxel = null;
+
+                        // We're going to check if a new mesh section is created as the not re-render unless we need to (99% of the time it should)
+                        var newMeshCreated = false;
+
+                        // Push the voxel from the chunk onto the end of the of the last chunck for the material
+                        if (sceneMeshSection.voxels.length > 0) {
+                            for (var i=0; i<sceneMeshSection.voxels.length; i++) {
                                 if ((sceneMesh.meshes.length === 0) || (sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.length >= that._chunkSize)) {
                                     sceneMesh.meshes.push({
                                         voxels: [],
                                         mesh: null
                                     });
+
+                                    newMeshCreated = true;
                                 }
 
-                                sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.push(meshArray.voxels[i]);
+                                sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.push(sceneMeshSection.voxels[i]);
                             }
+                        }
 
-                            for (var i=0; i<sceneMesh.meshes.length; i++) {
-                                for (var j=0; j<sceneMesh.meshes[i].voxels.length; j++) {
-                                    sceneMesh.meshes[i].voxels[j].meshSection = (i+1);
+                        // Reset the section for all the voxel (could maybe be optomized)
+                        for (var i=0; i<sceneMesh.meshes.length; i++) {
+                            for (var j=0; j<sceneMesh.meshes[i].voxels.length; j++) {
+                                sceneMesh.meshes[i].voxels[j].meshSection = (i+1);
+                            }
+                        }
+
+                        // Recreate the geometry for the second to last chunk (the chunk the voxel was added to)
+                        if ((newMeshCreated) && (sceneMesh.meshes.length >= 2)) {
+                            var existingGeometry = new THREE.Geometry();
+
+                            for (var i=0; i<sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels.length; i++) {
+                                try {
+                                    existingGeometry.merge(sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh.geometry, sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh.matrix);
+                                }
+                                catch (err) {
+                                    console.log(sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh, err);   
                                 }
                             }
+                        }
 
-                            if (sceneMesh.meshes.length >= 2) {
-                                var existingGeometry = new THREE.Geometry();
+                        // Create the geometery for the overflow chunk from adding onto the end
+                        if (sceneMesh.meshes.length >= 1) {
+                            var newGeometry = new THREE.Geometry();
 
-                                for (var i=0; i<sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels.length; i++) {
-                                    try {
-                                        existingGeometry.merge(sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh.geometry, sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh.matrix);
-                                    }
-                                    catch (err) {
-                                        console.log(sceneMesh.meshes[(sceneMesh.meshes.length-2)].voxels[i].voxelMesh, err);   
-                                    }
+                            for (var i=0; i<sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.length; i++) {
+                                try {
+                                    newGeometry.merge(sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh.geometry, sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh.matrix);
+                                }
+                                catch (err) {
+                                    console.log(sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh, err);   
                                 }
                             }
+                        }
 
-                            if (sceneMesh.meshes.length >= 1) {
-                                var newGeometry = new THREE.Geometry();
+                        // Remove the old mesh and add the new mesh for the chunk added to
+                        if ((newMeshCreated) && (sceneMesh.meshes.length >= 2)) {
+                            var existingMesh = new THREE.Mesh(existingGeometry, sceneMesh.material);
 
-                                for (var i=0; i<sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels.length; i++) {
-                                    try {
-                                        newGeometry.merge(sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh.geometry, sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh.matrix);
-                                    }
-                                    catch (err) {
-                                        console.log(sceneMesh.meshes[(sceneMesh.meshes.length-1)].voxels[i].voxelMesh, err);   
-                                    }
-                                }
-                            }
+                            that._scene.remove(sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh);
+                            that._scene.add(existingMesh);
 
-                            if (sceneMesh.meshes.length >= 2) {
-                                var existingMesh = new THREE.Mesh(existingGeometry, sceneMesh.material);
+                            sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh.geometry.dispose();
+                            sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh.material.dispose();
+                            sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh = null;
 
-                                that._scene.remove(sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh);
-                                that._scene.add(existingMesh);
+                            sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh = existingMesh;
+                        }
+                        
+                        // remove the old mesh that the voxel was deleted from
+                        if (sceneMeshSection.mesh !== null) {
+                            that._scene.remove(sceneMeshSection.mesh);
+                            sceneMeshSection.mesh.geometry.dispose();
+                            sceneMeshSection.mesh.material.dispose();
+                            sceneMeshSection.mesh = null;
+                        }
 
-                                sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh = null;
-                                sceneMesh.meshes[(sceneMesh.meshes.length-2)].mesh = existingMesh;
-                            }
-                            
-                            if (sceneMesh.meshes.length >= 1) {
-                                var newMesh = new THREE.Mesh(newGeometry, sceneMesh.material);
-                                if (meshArray.mesh !== null) that._scene.remove(meshArray.mesh);
-                                that._scene.add(newMesh);
+                        // add the new mesh for the overflow chunk
+                        if (sceneMesh.meshes.length >= 1) {
+                            var newMesh = new THREE.Mesh(newGeometry, sceneMesh.material);
+                            that._scene.add(newMesh);
 
-                                sceneMesh.meshes[(sceneMesh.meshes.length-1)].mesh = newMesh;
-                            }
+                            sceneMesh.meshes[(sceneMesh.meshes.length-1)].mesh = newMesh;
                         }
                     }
                 }
