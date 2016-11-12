@@ -67,6 +67,8 @@
 	app.get("/scene/:id", sceneController.getById);
 	app.post("/scene/:id/:shareId", sceneController.save);
 
+	app.get("/scene/readonly/:id", sceneController.getReadOnlyById);
+
 // Dialog retrieval
 
 	app.get("/dialogs/error", function(req,res) { 

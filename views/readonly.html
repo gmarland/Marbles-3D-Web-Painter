@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Marble Madness Level Editor</title>
+		<title>Marbles 3D</title>
 		<script type="text/javascript" src="/third-party-libs/jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="/third-party-libs/three.min.js"></script>
 		<script type="text/javascript" src="/libs/FirstPersonControls.js"></script>
@@ -13,6 +13,42 @@
 	  	<link type="text/css" href="/css/main.css" rel="stylesheet" />
 	</head>
 	<body>
-		<div id="scene-container">
+		<div id="scene-container"></div>
+		<div id="modal-dialog-overlay" style="display: none;"></div>
+		<script type="text/javascript">	
+			function closeModalDialog() {
+				$("#modal-dialog-overlay").empty();
+				$("#modal-dialog-overlay").hide();
+			}
+
+			function setTitle() {
+				document.title = levelViewer.getName();
+			}
+
+			var levelViewer = new LevelViewer();
+
+			levelViewer.start("scene-container");
+			
+			levelViewer.onError = function(message) {
+                $.ajax({
+                    url: "/dialogs/error",
+                    type: "GET",
+                    success: function (response) {
+						$("#modal-dialog-overlay").html(response);
+
+						$("#error-message").html(message);
+
+						$("#modal-dialog-overlay").show();
+                    }
+                });
+			};
+
+			levelViewer.onLoad = function(loaded) { 
+				if (loaded) setTitle();
+			};
+
+			var sceneId = getURLParam("id");
+			if (sceneId != null) levelViewer.load(sceneId);
+		</script>
 	</body>
 </html>

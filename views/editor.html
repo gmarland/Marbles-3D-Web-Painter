@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Marble Madness Level Editor</title>
+		<title>Marbles 3D</title>
 		<script type="text/javascript" src="/third-party-libs/jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="/third-party-libs/three.min.js"></script>
 		<script type="text/javascript" src="/third-party-libs/jscolor.js"></script>
@@ -276,6 +276,7 @@
 			}
 
 			function setTitle() {
+				document.title = levelEditor.getName();
 				$("#title").html(levelEditor.getName());
 				$("#edit-url").html("http://" + window.location.host + "/" + levelEditor.getId());
 				$("#share-url").html("http://" + window.location.host + "/m/" + levelEditor.getShareId());
@@ -395,7 +396,7 @@
 
 			$("#color-select").val(startColor);
 
-			var levelEditor = (new LevelEditor());
+			var levelEditor = new LevelEditor();
 
 			levelEditor.start("scene-container", startColor);
 

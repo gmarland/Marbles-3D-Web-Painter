@@ -65,8 +65,6 @@
 
         this._eventManager = null;
 
-        // -----
-
         // ----- Constructor
 
     	this.init = function(container) {
@@ -120,7 +118,7 @@
             that.bindWindowEvents();
     	};
 
-        // -----
+        // ----- Scene methods
 
         this.getCamera = function(containerWidth, containerHeight) {
         	var fov = 75,

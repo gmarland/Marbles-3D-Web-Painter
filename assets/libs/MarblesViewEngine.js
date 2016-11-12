@@ -165,6 +165,13 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         for (var i=0; i<voxels.length; i++) {
             var sectionMesh = that.getSceneMesh(voxels[i]);
 
+            if (sectionMesh.meshes.length === 0) {
+                sectionMesh.meshes.push({
+                    voxels: [],
+                    mesh: null
+                });
+            }
+
             sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(voxels[i]);
 
             voxels[i].meshSection = 1;
@@ -176,21 +183,23 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
 
         for (var color in that._sceneMeshes) {
             for (var opacity in that._sceneMeshes[color]) {
-                // build the geometry for the mesh
-                var geometry = new THREE.Geometry();
+                for (var i=0; i<that._sceneMeshes[color][opacity].meshes.length; i++) {
+                    // build the geometry for the mesh
+                    var geometry = new THREE.Geometry();
 
-                for (var j=0; j<that._sceneMeshes[color][opacity].meshes[i].voxels.length; j++) {
-                    var voxelMesh = that._sceneMeshes[color][opacity].meshes[i].voxels[j].voxelMesh;
+                    for (var j=0; j<that._sceneMeshes[color][opacity].meshes[i].voxels.length; j++) {
+                        var voxelMesh = that._sceneMeshes[color][opacity].meshes[i].voxels[j].voxelMesh;
 
-                    geometry.merge(voxelMesh.geometry, voxelMesh.matrix);
+                        geometry.merge(voxelMesh.geometry, voxelMesh.matrix);
+                    }
+                
+                    geometry.computeFaceNormals();
+
+                    var mesh = new THREE.Mesh(geometry, that._sceneMeshes[color][opacity].material);
+                    that._sceneMeshes[color][opacity].meshes[i].mesh = mesh;
+
+                    that._scene.add(mesh);
                 }
-                
-                geometry.computeFaceNormals();
-
-                var mesh = new THREE.Mesh(geometry, that._sceneMeshes[color][opacity].material);
-                
-                that._sceneMeshes[color][opacity].meshes[i].mesh = mesh;
-                that._scene.add(mesh);
             }
         }
     };
@@ -244,7 +253,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 }
             }   
         }
-    }
+    };
 
     return {
         loadScene: function(sceneVoxels, readOnly) {
