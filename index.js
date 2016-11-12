@@ -58,6 +58,12 @@
 		res.sendFile(path.join(__dirname, "/views/editor.html")); 
 	});	
 
+	app.get("/m/:id", function(req,res) {
+		res.sendFile(path.join(__dirname, "/views/readonly.html")); 
+	});	
+
+// Data routes
+
 	app.get("/scene/:id", sceneController.getById);
 	app.post("/scene/:id/:shareId", sceneController.save);
 

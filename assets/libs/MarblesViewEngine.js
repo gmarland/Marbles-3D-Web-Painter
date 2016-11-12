@@ -1,11 +1,11 @@
 THREE.MarblesViewEngine = function (scene, voxelSize) {
-	var that = this;
+    var that = this;
 
     this._chunkSize = 100;
 
-	this._scene = scene;
+    this._scene = scene;
 
-	this._voxelSize = voxelSize;
+    this._voxelSize = voxelSize;
 
     this._materials = {};
 
@@ -161,8 +161,42 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         return voxel;
     };
 
-    // This method loads a scene that was previously saved
     this.loadEntireScene = function(voxels) {
+        for (var i=0; i<voxels.length; i++) {
+            var sectionMesh = that.getSceneMesh(voxels[i]);
+
+            sectionMesh.meshes[(sectionMesh.meshes.length-1)].voxels.push(voxels[i]);
+
+            voxels[i].meshSection = 1;
+
+            // track this voxel as occupying this position
+            var scenePosition = that.getScenePosition(voxels[i].position);
+            scenePosition.voxel = voxels[i];
+        }
+
+        for (var color in that._sceneMeshes) {
+            for (var opacity in that._sceneMeshes[color]) {
+                // build the geometry for the mesh
+                var geometry = new THREE.Geometry();
+
+                for (var j=0; j<that._sceneMeshes[color][opacity].meshes[i].voxels.length; j++) {
+                    var voxelMesh = that._sceneMeshes[color][opacity].meshes[i].voxels[j].voxelMesh;
+
+                    geometry.merge(voxelMesh.geometry, voxelMesh.matrix);
+                }
+                
+                geometry.computeFaceNormals();
+
+                var mesh = new THREE.Mesh(geometry, that._sceneMeshes[color][opacity].material);
+                
+                that._sceneMeshes[color][opacity].meshes[i].mesh = mesh;
+                that._scene.add(mesh);
+            }
+        }
+    };
+
+    // This method loads a scene that was previously saved and chunks the voxels so that it can be edited
+    this.loadChunkedScene = function(voxels) {
         // This is a bit difficult to wrap your head around. The voxels may not be in order so we need to sort them and then build each
         // of the geometries
 
@@ -192,7 +226,6 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
         for (var color in that._sceneMeshes) {
             for (var opacity in that._sceneMeshes[color]) {
                 for (var i=0; i<that._sceneMeshes[color][opacity].meshes.length; i++) {
-
                     // build the geometry for the mesh
                     var geometry = new THREE.Geometry();
 
@@ -214,25 +247,26 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
     }
 
     return {
-    	loadScene: function(sceneVoxels) {
+        loadScene: function(sceneVoxels, readOnly) {
             if (sceneVoxels) {
                 var voxels = [];
 
-    		    for (var i=0; i<sceneVoxels.length; i++) {
+                for (var i=0; i<sceneVoxels.length; i++) {
                     if (sceneVoxels[i].opacity == null) sceneVoxels[i].opacity = 100;
 
-    		    	if (sceneVoxels[i].shape == "cube") voxels.push(that.createCube(sceneVoxels[i]));
-    		    	else if (sceneVoxels[i].shape == "triangle") voxels.push(that.createTriangle(sceneVoxels[i]));
-    		    	else if (sceneVoxels[i].shape == "pyramid") voxels.push(that.createPyramid(sceneVoxels[i]));
+                    if (sceneVoxels[i].shape == "cube") voxels.push(that.createCube(sceneVoxels[i]));
+                    else if (sceneVoxels[i].shape == "triangle") voxels.push(that.createTriangle(sceneVoxels[i]));
+                    else if (sceneVoxels[i].shape == "pyramid") voxels.push(that.createPyramid(sceneVoxels[i]));
                     else if (sceneVoxels[i].shape == "corner") voxels.push(that.createCorner(sceneVoxels[i]));
-    		    }
+                }
 
-                that.loadEntireScene(voxels);
+                if ((readOnly) && (readOnly == true)) that.loadEntireScene(voxels);
+                else that.loadChunkedScene(voxels);
             }
-		},
+        },
 
-		getScene: function() {
-			var scene = [];
+        getScene: function() {
+            var scene = [];
 
             for (var color in that._sceneMeshes) {
                 for (var opacity in that._sceneMeshes[color]) {
@@ -254,7 +288,7 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
             }
 
             return scene;
-		},
+        },
 
         getVoxelAtPosition: function(position) {
             var spacePosition = {
@@ -338,12 +372,12 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                     geometry = null;
                 }
             }
-    	},
+        },
 
         // *****EXPLAINING: The material voxels are broke into chunks. We're basically going to get the chunk for that material
         //                  and remove the voxel and then add all the voxels from that chunk onto the end of the last chunk. That
         //                  means we only have to delete the last 2 chunks if on a delete.
-		removeVoxel: function(position) {
+        removeVoxel: function(position) {
             if (position !== null) {    
                 var exisitingVoxel = this.getVoxelAtPosition(position);
 
@@ -460,5 +494,5 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
                 }
             }
         }
-	}
+    }
 };
