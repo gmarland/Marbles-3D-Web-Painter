@@ -13,6 +13,10 @@
 	</head>
 	<body>
 		<div id="scene-container"></div>
+		<div id="loading-overlay">
+    		<span></span>
+			<img src="/images/loading.gif" border="0" />
+		</div>
 		<div id="modal-dialog-overlay" style="display: none;"></div>
 		<script type="text/javascript">	
 			function closeModalDialog() {
@@ -44,6 +48,8 @@
 
 			levelViewer.onLoad = function(loaded) { 
 				if (loaded) setTitle();
+
+				$("#loading-overlay").hide();
 			};
 
 			var sceneId = getURLParam("id");

@@ -752,9 +752,11 @@
 
                             that._shareId = response.shareId;
 
-                            that._marblesViewEngine.loadScene(response.data);
+                            setTimeout(function() {
+                                that._marblesViewEngine.loadScene(response.data);
 
-                            if (local.onLoad) local.onLoad(true);
+                                if (local.onLoad) local.onLoad(true);
+                            }, 0);
                         }
                         else local.onLoad(false);
                     },
