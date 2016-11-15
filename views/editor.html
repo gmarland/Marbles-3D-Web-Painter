@@ -14,7 +14,7 @@
 	  	<link type="text/css" href="/css/main.css" rel="stylesheet" />
 	</head>
 	<body>
-		<div id="scene-container" oncontextmenu="return false">
+		<div id="scene-container" oncontextmenu="return false"></div>
 		<div id="title-container" style="display: none;">
 			<div class="table full tall">
 				<div class="row">
@@ -33,6 +33,7 @@
 			<div id="settings-menu" class="menu" style="display: none;">
 				<div id="edit-details-button" onclick="editScene();" style="display: none;">Edit</div>
 				<div id="save-btn" onclick="saveScene();">Save</div>
+				<div id="save-btn" onclick="showControls();">Controls</div>
 			</div>
 		</div>
 		<div id="shape-select-container" class="noselect">
@@ -84,6 +85,10 @@
 				</tr>
 			</table>
 		</div>
+		<div id="loading-overlay">
+    		<span></span>
+			<img src="/images/loading.gif" border="0" />
+		</div>
 		<div id="modal-dialog-overlay" style="display: none;"></div>
 		<script type="text/javascript">	
 			// ----- Random numbers variables used in different areas
@@ -110,6 +115,22 @@
 				$("#modal-dialog-overlay").hide();
 
 				levelEditor.setControlsEnabled(true);
+			}
+
+			// ----- Show welcome method
+
+			function showWelcome() {
+                $.ajax({
+                    url: "/dialogs/welcome",
+                    type: "GET",
+                    success: function (response) {
+                    	console.log(response)
+						$("#modal-dialog-overlay").html(response);
+						$("#modal-dialog-overlay").show();
+
+						levelEditor.setControlsEnabled(false);
+                    }
+                });
 			}
 
 			// ----- Saving scene method
@@ -164,6 +185,23 @@
 
 				$("#edit-details-button").show();
 				$("#settings-menu").addClass("editable");
+			}
+
+			// ----- Show controls method
+
+			function showControls() {
+				hideSettingsSelect();
+
+                $.ajax({
+                    url: "/dialogs/controls",
+                    type: "GET",
+                    success: function (response) {
+						$("#modal-dialog-overlay").html(response);
+						$("#modal-dialog-overlay").show();
+
+						levelEditor.setControlsEnabled(false);
+                    }
+                });
 			}
 
 			// ----- Methods to set colors
@@ -399,6 +437,7 @@
 			var levelEditor = new LevelEditor();
 
 			levelEditor.start("scene-container", startColor);
+			levelEditor.setControlsEnabled(false);
 
 			levelEditor.setEventManager(function(action, details) {
 				if (action == "toolChange") {
@@ -438,11 +477,21 @@
 				}
 
 				showTitle();
+					
+				$("#loading-overlay").hide();
 			};
 
 			var sceneId = getURLParam("id");
-			if (sceneId != null) levelEditor.load(sceneId);
-			else showTitle();
+			if (sceneId != null) {
+				levelEditor.load(sceneId);
+			}
+			else {
+				showWelcome();
+				
+				$("#loading-overlay").hide();
+
+				showTitle();
+			}
 		</script>
 	</body>
 </html>

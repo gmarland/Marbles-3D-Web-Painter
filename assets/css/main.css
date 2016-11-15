@@ -193,3 +193,9 @@
 	#color-select-container #opacity-icon {
 		width: 15px;	
 	}
+
+/* Dialog styles */
+
+.controls-seperator {
+	padding: 0px 5px 0px 5px;
+}

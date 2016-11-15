@@ -75,10 +75,18 @@
 		res.sendFile(path.join(__dirname, "/views/dialogs/error-message.html")); 
 	});
 
+	app.get("/dialogs/welcome", function(req,res) { 
+		res.sendFile(path.join(__dirname, "/views/dialogs/welcome-dialog.html")); 
+	});
+
 	app.get("/dialogs/edit", function(req,res) { 
 		res.sendFile(path.join(__dirname, "/views/dialogs/edit-dialog.html")); 
 	});
 
 	app.get("/dialogs/save", function(req,res) { 
 		res.sendFile(path.join(__dirname, "/views/dialogs/save-dialog.html")); 
+	});
+
+	app.get("/dialogs/controls", function(req,res) { 
+		res.sendFile(path.join(__dirname, "/views/dialogs/controls-dialog.html")); 
 	});

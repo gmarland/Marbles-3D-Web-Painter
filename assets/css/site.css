@@ -28,6 +28,15 @@
 		padding: 0px;
 	}
 
+	a {
+		color: #0093CD;
+		text-decoration: none;
+	}
+
+	a:hover {
+		text-decoration: underline;
+	}
+
 	.error {
 		color: #ff0000;
 	}
@@ -62,6 +71,30 @@
 		background-image: linear-gradient(to bottom, #FEFEFE, #F3F3F3);
 		background-repeat: repeat-x;
 		cursor: pointer;
+	}
+
+	#loading-overlay {
+		position: absolute;
+		top: 0px;
+		bottom: 0px;
+		left: 0px;
+		right: 0px;
+		background-color: #ffffff;
+		overflow: auto;
+		text-align: center;
+		vertical-align: middle;
+		z-index: 5;
+	}
+
+	#loading-overlay span {
+	    display: inline-block;
+	    height: 100%;
+	    vertical-align: middle;
+	}
+
+	#loading-overlay img {
+	    display: inline-block;
+	    vertical-align: middle;
 	}
 
 /* Modal dialog styles */

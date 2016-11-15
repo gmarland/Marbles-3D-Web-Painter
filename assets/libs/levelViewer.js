@@ -216,6 +216,13 @@
                     type: "GET",
                     success: function (response) {
                         if ((response != null) && (typeof response === 'object')) {
+                            var minX = 0,
+                                maxX = 0,
+                                minY = 0,
+                                maxY = 0,
+                                minZ = 0,
+                                maxZ = 0;
+                                
                             that._sceneName = response.name;
 
                             that._shareId = response.shareId;
