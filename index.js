@@ -8,13 +8,14 @@
 
 // Load config 
 
-	// We need the config file needs to exist. It should be JSON and have the property "path", where configs are wrote to.
+	// This should be the details to an amazon S3. { "key": "",  "secret": "", "bucket": "" }
 	var dataStorageConfig = fs.readFileSync("./data-storage.config", "utf8");
 
 	global.dataStorage = JSON.parse(dataStorageConfig);
 
 	global.logging = require("./node_app/helpers/logging.js");
 	global.textHelper = require("./node_app/helpers/text.js");
+	global.amazon = require("./node_app/helpers/amazon.js");
 
 // Instantiate Express
 
