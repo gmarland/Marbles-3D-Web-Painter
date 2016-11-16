@@ -124,7 +124,8 @@
                     url: "/dialogs/welcome",
                     type: "GET",
                     success: function (response) {
-                    	console.log(response)
+						levelEditor.setControlsEnabled(false);
+
 						$("#modal-dialog-overlay").html(response);
 						$("#modal-dialog-overlay").show();
 
@@ -437,7 +438,6 @@
 			var levelEditor = new LevelEditor();
 
 			levelEditor.start("scene-container", startColor);
-			levelEditor.setControlsEnabled(false);
 
 			levelEditor.setEventManager(function(action, details) {
 				if (action == "toolChange") {
