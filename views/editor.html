@@ -401,7 +401,9 @@
 				$("#opacity").blur();
 			}, false);
 
-			document.addEventListener('keydown', function(e) {
+			$(document).add($(parent.document)).on('keydown', function (event) {
+				e = event.originalEvent;
+				
 				e.stopPropagation();
 				e.preventDefault();
 
@@ -411,10 +413,10 @@
 				else if (keyCode == "arrowdown") levelEditor.setLevelDownSelected(true);
 			});
 
-			document.addEventListener('keyup', function(e) {
+			$(document).add($(parent.document)).on('keyup', function (event) {
 				e.stopPropagation();
 				e.preventDefault();
-				
+
 				var keyCode = e.code.toLowerCase();
 
 				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(false);
@@ -426,13 +428,15 @@
 					$("#color-select").blur();
 					document.getElementById('color-select').jscolor.hide();
 				}
-			}, false);
-
+			});
 
 			document.addEventListener("mousewheel", MouseWheelHandler, false);
 			document.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
 
 			function MouseWheelHandler(e) {
+				e.stopPropagation();
+				e.preventDefault();
+
 				if (e.deltaY) {
 					var level = levelEditor.getLevel();
 

@@ -28,6 +28,22 @@
 				document.title = levelViewer.getName();
 			}
 
+			// Binding window events
+
+			document.addEventListener("mouseout", function() {
+				levelViewer.cancelMovement();
+			}, false);
+
+			$(document).add($(parent.document)).on('keydown', function (event) {
+				e.stopPropagation();
+				e.preventDefault();
+			});
+
+			$(document).add($(parent.document)).on('keyup', function (event) {
+				e.stopPropagation();
+				e.preventDefault();
+			}, false);
+
 			var levelViewer = new LevelViewer();
 
 			levelViewer.start("scene-container");
@@ -51,10 +67,6 @@
 
 				$("#loading-overlay").hide();
 			};
-
-			document.addEventListener("mouseout", function() {
-				levelViewer.cancelMovement();
-			}, false);
 
 			var sceneId = getURLParam("id");
 			if (sceneId != null) levelViewer.load(sceneId);

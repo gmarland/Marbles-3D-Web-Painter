@@ -255,16 +255,6 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 		this.rotateDown = false;
 	};
 
-	this.dispose = function() {
-		this._domElement.removeEventListener( 'mousedown', _onMouseDown, false );
-		this._domElement.removeEventListener( 'mousemove', _onMouseMove, false );
-		this._domElement.removeEventListener( 'mouseup', _onMouseUp, false );
-		this._domElement.removeEventListener( 'mouseleave', _onMouseUp, false );
-
-		window.removeEventListener( 'keydown', _onKeyDown, false );
-		window.removeEventListener( 'keyup', _onKeyUp, false );
-	}
-
 	var _onMouseMove = bind( this, this.onMouseMove );
 	var _onMouseDown = bind( this, this.onMouseDown );
 	var _onMouseUp = bind( this, this.onMouseUp );
@@ -276,8 +266,8 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 	this._domElement.addEventListener( 'mouseup', _onMouseUp, false );
 	this._domElement.addEventListener( 'mouseleave',_onMouseUp, false );
 
-	window.addEventListener( 'keydown', _onKeyDown, false );
-	window.addEventListener( 'keyup', _onKeyUp, false );
+	$(document).add($(parent.document)).on('keydown', _onKeyDown);
+	$(document).add($(parent.document)).on('keyup', _onKeyUp);
 
 	function bind( scope, fn ) {
 		return function () {
