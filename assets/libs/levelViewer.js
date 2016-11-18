@@ -80,7 +80,7 @@
         };
 
        	this.getControls = function(scene, camera, domElement) {
-			return new THREE.FirstPersonControls(scene, camera, (that._basePlaneWidth*1.5), domElement);
+			return new THREE.FirstPersonControls(scene, camera, (that._basePlaneWidth*1.5), true, domElement);
        	};
 
         this.getLighting = function() {               

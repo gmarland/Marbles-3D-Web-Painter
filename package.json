@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/gmarland/Marble-Madness-Level-Creator/issues"
   },
-  "homepage": "https://github.com/gmarland/Marble-Madness-Level-Creator#readme"
+  "homepage": "https://github.com/gmarland/Marble-Madness-Level-Creator#readme",
+  "dependencies": {
+    "express": "4.14.0",
+    "body-parser": "1.15.2",
+    "aws-sdk": "2.7.2"
+  }
 }

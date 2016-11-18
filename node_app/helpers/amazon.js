@@ -1,4 +1,4 @@
-var AWS = require('aws-sdk');
+var AWS = require("aws-sdk");
 
 exports.getClient = function(amazonKey, amazonSecret) {
 	return new AWS.S3({ 

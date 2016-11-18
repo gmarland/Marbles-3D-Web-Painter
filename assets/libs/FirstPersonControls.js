@@ -1,5 +1,7 @@
-THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, moveFunction) {
+THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domElement, moveFunction) {
 	this.enabled = true;
+
+	this._readOnly = readOnly;
 
 	this._movementSpeed = 10;
 
@@ -7,7 +9,6 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, mo
 
     this._scene = scene;
 
-    // Set the camera up in the object  and rotate it 90 degrees on the y (we need to do this for positioning later)
 	this._camera = camera;
 
 	this._maxDistance = maxDistance;	
@@ -23,20 +24,38 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, mo
 	this._scene.add(this._yawObject);
 
 	this.onMouseDown = function ( event ) {
-		if ((this.enabled) && (getIsMiddleMouseButton(event))) this.moveCamera = true;
+		if ((this.enabled) && (this.getIsMiddleMouseButton(event))) this.moveCamera = true;
+		else if ((this.enabled) && (this._readOnly) && (this.getIsLeftMouseButton(event))) this.moveCamera = true;
 	};
 
 	this.onMouseUp = function ( event ) {
-		if ((this.enabled) && (getIsMiddleMouseButton(event))) this.moveCamera = false;
+		if ((this.enabled) && (this.getIsMiddleMouseButton(event))) this.moveCamera = false;
+		else if ((this.enabled) && (this._readOnly) && (this.getIsLeftMouseButton(event))) this.moveCamera = false;;
 	};
 
-    function getIsMiddleMouseButton(event) {
+    this.getIsMiddleMouseButton = function(event) {
         event = event || window.event;
 
         var button = event.which || event.button;
 
         return button == 2;
     }
+
+    this.getIsLeftMouseButton = function(event) {
+        event = event || window.event;
+
+        var button = event.which || event.button;
+
+        return button == 1;
+    };
+
+    this.getIsRightMouseButton = function(event) {
+        event = event || window.event;
+
+        var button = event.which || event.button;
+
+        return button == 3;
+    };
 
 	this.onMouseMove = function ( event ) {
 		var PI_2 = Math.PI / 2;
@@ -71,13 +90,25 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, mo
 				case 90: /*C*/ this.rotateDown = true; break;
 				case 88: /*X*/ this.rotateUp = true; break;
 			}
+
+			// we want to move with arrow keys too if we're readonly
+			if (this._readOnly) {
+				switch ( event.keyCode ) {
+					case 38: /*Up*/ this.moveForward = true; break;
+
+					case 37: /*Left*/ this.moveLeft = true; break;
+
+					case 40: /*Down*/ this.moveBackward = true; break;
+
+					case 39: /*Right*/ this.moveRight = true; break;
+				}
+			}
 		}
 	};
 
 	this.onKeyUp = function ( event ) {
 		if (this.enabled) {
 			switch ( event.keyCode ) {
-
 				case 87: /*W*/ this.moveForward = false; break;
 
 				case 65: /*A*/ this.moveLeft = false; break;
@@ -94,7 +125,19 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, mo
 
 				case 90: /*C*/ this.rotateDown = false; break;
 				case 88: /*X*/ this.rotateUp = false; break;
+			}
 
+			// we want to move with arrow keys too if we're readonly
+			if (this._readOnly) {
+				switch ( event.keyCode ) {
+					case 38: /*Up*/ this.moveForward = false; break;
+
+					case 37: /*Left*/ this.moveLeft = false; break;
+
+					case 40: /*Down*/ this.moveBackward = false; break;
+
+					case 39: /*Right*/ this.moveRight = false; break;
+				}
 			}
 		}
 	};
@@ -190,9 +233,7 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, domElement, mo
 			actionOccured = true;
 		}
 
-		if ((actionOccured) && (this._moveFunction)) {
-			this._moveFunction();
-		}
+		if ((actionOccured) && (this._moveFunction))  this._moveFunction();
 	};
 
 	this.dispose = function() {

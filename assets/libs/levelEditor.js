@@ -129,7 +129,7 @@
         };
 
        	this.getControls = function(scene, camera, domElement) {
-			return new THREE.FirstPersonControls(scene, camera, (that._basePlaneWidth*1.5), domElement, function() {
+			return new THREE.FirstPersonControls(scene, camera, (that._basePlaneWidth*1.5), false, domElement, function() {
                 that.repositionPositioningCube();
 
                 if (that._isPainting) that.paint();
@@ -457,7 +457,7 @@
             if (that._controls.enabled) {
                 event.preventDefault();
 
-                if (that.getIsLeftMouseButton(event)) {
+                if (that._controls.getIsLeftMouseButton(event)) {
                     if (that._selectedTool == "painter") {
                         that._isPainting = true;
 
@@ -467,7 +467,7 @@
                         that.sampleColor();
                     }
                 }
-                else if (that.getIsRightMouseButton(event)) {
+                else if (that._controls.getIsRightMouseButton(event)) {
                     if (that._selectedTool == "painter") {
                         that._isErasing = true;
 
@@ -483,30 +483,12 @@
             if (that._controls.enabled) {
                 event.preventDefault();
 
-                if (that.getIsLeftMouseButton(event)) that._isPainting = false;
-                else if (that.getIsRightMouseButton(event)) that._isErasing = false;
+                if (that._controls.getIsLeftMouseButton(event)) that._isPainting = false;
+                else if (that._controls.getIsRightMouseButton(event)) that._isErasing = false;
 
                 return false;
             }
 		};
-
-        this.getIsLeftMouseButton = function(event) {
-            event = event || window.event;
-
-            var button = event.which || event.button;
-
-            return button == 1;
-        };
-
-        this.getIsRightMouseButton = function(event) {
-            event = event || window.event;
-
-            var button = event.which || event.button;
-
-            return button == 3;
-        };
-
-		//-----
 
         //----- Painting methods
 
