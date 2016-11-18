@@ -402,6 +402,9 @@
 			}, false);
 
 			document.addEventListener('keydown', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+
 				var keyCode = e.code.toLowerCase();
 
 				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(true);
@@ -409,6 +412,9 @@
 			});
 
 			document.addEventListener('keyup', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				
 				var keyCode = e.code.toLowerCase();
 
 				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(false);
