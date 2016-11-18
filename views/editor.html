@@ -401,9 +401,7 @@
 				$("#opacity").blur();
 			}, false);
 
-			$(document).add($(parent.document)).on('keydown', function (event) {
-				e = event.originalEvent;
-				
+			document.addEventListener('keydown', function(e) {
 				e.stopPropagation();
 				e.preventDefault();
 
@@ -413,7 +411,7 @@
 				else if (keyCode == "arrowdown") levelEditor.setLevelDownSelected(true);
 			});
 
-			$(document).add($(parent.document)).on('keyup', function (event) {
+			document.addEventListener('keyup', function(e) {
 				e.stopPropagation();
 				e.preventDefault();
 
@@ -428,7 +426,8 @@
 					$("#color-select").blur();
 					document.getElementById('color-select').jscolor.hide();
 				}
-			});
+			}, false);
+
 
 			document.addEventListener("mousewheel", MouseWheelHandler, false);
 			document.addEventListener("DOMMouseScroll", MouseWheelHandler, false);

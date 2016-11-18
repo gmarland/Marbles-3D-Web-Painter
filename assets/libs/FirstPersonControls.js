@@ -33,6 +33,8 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 		else if ((this.enabled) && (this._readOnly) && (this.getIsLeftMouseButton(event))) this.moveCamera = false;
 	};
 
+
+
     this.getIsMiddleMouseButton = function(event) {
         event = event || window.event;
 
@@ -75,6 +77,26 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 			}
 		}
 	};
+
+	this.onTouchStart = function ( e ) {
+        if (e.touches.length == 1) {
+            this.touchStartPosition = e.touches[0];
+        }
+	};
+	
+	this.onTouchMove = function ( e ) {
+       	var distX = this.touchStartPosition.pageX - e.touches[0].pageX,
+       		distY = this.touchStartPosition.pageY - e.touches[0].pageY;
+
+		this._yawObject.rotation.y -= distX * 0.004;
+		this._pitchObject.rotation.x -= distY * 0.004;
+		
+        this.touchStartPosition = e.touches[0];
+	};
+	
+	this.onTouchEnd = function ( e ) {
+            this.touchStartPosition = null;
+	};	
 
 	this.onKeyDown = function ( event ) {
 		if (this.enabled) {
@@ -258,6 +280,11 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 	var _onMouseMove = bind( this, this.onMouseMove );
 	var _onMouseDown = bind( this, this.onMouseDown );
 	var _onMouseUp = bind( this, this.onMouseUp );
+
+	var _onTouchStart = bind( this, this.onTouchStart );
+	var _onTouchMove = bind( this, this.onTouchMove );
+	var _onTouchEnd = bind( this, this.onTouchEnd );
+
 	var _onKeyDown = bind( this, this.onKeyDown );
 	var _onKeyUp = bind( this, this.onKeyUp );
 
@@ -266,8 +293,13 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 	this._domElement.addEventListener( 'mouseup', _onMouseUp, false );
 	this._domElement.addEventListener( 'mouseleave',_onMouseUp, false );
 
-	$(document).add($(parent.document)).on('keydown', _onKeyDown);
-	$(document).add($(parent.document)).on('keyup', _onKeyUp);
+    this._domElement.addEventListener("touchstart", _onTouchStart, false );
+    this._domElement.addEventListener( "touchmove", _onTouchMove, false );
+    this._domElement.addEventListener( "touchend", _onTouchEnd, false );
+    this._domElement.addEventListener( "touchcancel", _onTouchEnd, false );
+
+	document.addEventListener( 'keydown', _onKeyDown, false );
+	document.addEventListener( 'keyup', _onKeyUp, false );
 
 	function bind( scope, fn ) {
 		return function () {

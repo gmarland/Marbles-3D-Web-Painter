@@ -34,12 +34,12 @@
 				levelViewer.cancelMovement();
 			}, false);
 
-			$(document).add($(parent.document)).on('keydown', function (event) {
+			document.addEventListener('keydown', function(e) {
 				e.stopPropagation();
 				e.preventDefault();
 			});
 
-			$(document).add($(parent.document)).on('keyup', function (event) {
+			document.addEventListener('keyup', function(e) {
 				e.stopPropagation();
 				e.preventDefault();
 			}, false);
