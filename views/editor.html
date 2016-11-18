@@ -392,6 +392,10 @@
 				$(this).attr("src", "images/" + $(this).attr("id") + ".png");
 			});
 
+			document.addEventListener("mouseout", function() {
+				levelEditor.cancelMovement();
+			}, false);
+
 			document.addEventListener("mousedown", function(e) {
 				$("#color-select").blur();
 				$("#opacity").blur();

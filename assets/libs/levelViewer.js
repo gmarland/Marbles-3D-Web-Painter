@@ -204,6 +204,10 @@
                 that._controls.rotateCamera(rotation.x, rotation.y);
             },
 
+            cancelMovement: function() {
+                that._controls.cancelMovement();
+            },
+
             // ----- Public Methods
 
             load: function(sceneId) {

@@ -30,7 +30,7 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 
 	this.onMouseUp = function ( event ) {
 		if ((this.enabled) && (this.getIsMiddleMouseButton(event))) this.moveCamera = false;
-		else if ((this.enabled) && (this._readOnly) && (this.getIsLeftMouseButton(event))) this.moveCamera = false;;
+		else if ((this.enabled) && (this._readOnly) && (this.getIsLeftMouseButton(event))) this.moveCamera = false;
 	};
 
     this.getIsMiddleMouseButton = function(event) {
@@ -58,14 +58,21 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
     };
 
 	this.onMouseMove = function ( event ) {
-		var PI_2 = Math.PI / 2;
-
 		if (this.moveCamera) {
+			var PI_2 = Math.PI / 2;
+
 			var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0,
 				movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-			this._yawObject.rotation.y -= movementX * 0.004;
-			this._pitchObject.rotation.x -= movementY * 0.004;
+			// making the movement more natural for read only drawings
+			if (this._readOnly) {
+				this._yawObject.rotation.y += movementX * 0.004;
+				this._pitchObject.rotation.x += movementY * 0.004;
+			}
+			else {
+				this._yawObject.rotation.y -= movementX * 0.004;
+				this._pitchObject.rotation.x -= movementY * 0.004;
+			}
 		}
 	};
 
@@ -166,8 +173,7 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 				y: this._pitchObject.rotation.x
 			}
 		}
-	}
-
+	};
 
 	this.update = function( delta ) {
 		var actionOccured = false;
@@ -234,6 +240,19 @@ THREE.FirstPersonControls = function (scene, camera, maxDistance, readOnly, domE
 		}
 
 		if ((actionOccured) && (this._moveFunction))  this._moveFunction();
+	};
+
+	this.cancelMovement = function() {
+		this.moveForward = false;
+		this.moveBackward = false;
+		this.moveLeft = false;
+		this.moveRight = false;
+		this.moveUp = false;
+		this.moveDown = false;
+		this.rotateLeft = false;
+		this.rotateRight = false;
+		this.rotateUp = false;
+		this.rotateDown = false;
 	};
 
 	this.dispose = function() {

@@ -718,6 +718,13 @@
                 that.updatePositioningVoxelRotation();
             },
 
+            cancelMovement: function() {
+                that._isPainting = false;
+                that._isErasing = false;
+
+                that._controls.cancelMovement();
+            },
+
             // ----- Public Methods
 
             load: function(sceneId) {
