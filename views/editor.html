@@ -406,8 +406,18 @@
 
 				var keyCode = e.code.toLowerCase();
 
-				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(true);
-				else if (keyCode == "arrowdown") levelEditor.setLevelDownSelected(true);
+				var isGridCommand = false;
+
+				if (keyCode == "arrowup") {
+					levelEditor.setLevelUpSelected(true);
+					isGridCommand = true;
+				}
+				else if (keyCode == "arrowdown") {
+					levelEditor.setLevelDownSelected(true);
+					isGridCommand = true;
+				}
+
+				if (isGridCommand) e.preventDefault();
 			});
 
 			document.addEventListener('keyup', function(e) {
@@ -415,10 +425,26 @@
 
 				var keyCode = e.code.toLowerCase();
 
-				if (keyCode == "arrowup") levelEditor.setLevelUpSelected(false);
-				else if (keyCode == "arrowdown") levelEditor.setLevelDownSelected(false);
-				else if (keyCode == "arrowleft") levelEditor.rotateGridLeft();
-				else if (keyCode == "arrowright") levelEditor.rotateGridRight();
+				var isGridCommand = false;
+
+				if (keyCode == "arrowup") {
+					levelEditor.setLevelUpSelected(false);
+					isGridCommand = true;
+				}
+				else if (keyCode == "arrowdown") {
+					levelEditor.setLevelDownSelected(false);
+					isGridCommand = true;
+				}
+				else if (keyCode == "arrowleft") {
+					levelEditor.rotateGridLeft();
+					isGridCommand = true;
+				}
+				else if (keyCode == "arrowright") {
+					levelEditor.rotateGridRight();
+					isGridCommand = true;
+				}
+
+				if (isGridCommand) e.preventDefault();
 
 				if (e.keyCode == 13) {
 					$("#color-select").blur();
