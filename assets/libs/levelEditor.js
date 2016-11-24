@@ -45,6 +45,7 @@
         this._gridRotation = "h";
 
         this._positioningCube = null;
+        this._positioningShape = null;
 
         this._voxelSize = 10;
 
@@ -53,12 +54,15 @@
         this._level = 0;
 
         this._selectedTool = "painter";
+        this._selectedDrawStyle = "block";
         this._selectedShape = "cube";
         this._selectedOpacity = 100;
         this._selectedColor = "#000000";
 
         this._isPainting = false;
         this._isErasing = false;
+
+        this._startPaintPosition = null;
 
         this._xRotation = 0;
         this._yRotation = 0;
@@ -261,7 +265,7 @@
 
                 that._level = level;
 
-                if (that._isPainting) that.paint();
+                if ((that._isPainting) && (that._selectedDrawStyle == "point")) that.paint();
                 else if (that._isErasing) that.erase();
             }
         };
@@ -446,7 +450,9 @@
                         else if (that._gridRotation == "vz") that._positioningCube.position.z -= that._voxelSize;
                     }
 
-    				if (that._isPainting) that.paint();
+    				if (that._isPainting) {
+                        if (that._selectedDrawStyle == "point") that.paint();
+                    }
                     else if (that._isErasing) that.erase();
     			}
     			else that._positioningCube.visible = false;
@@ -461,7 +467,14 @@
                     if (that._selectedTool == "painter") {
                         that._isPainting = true;
 
-                        that.paint();
+                        if (that._selectedDrawStyle == "point") that.paint();
+                        else {
+                            that._startPaintPosition = {
+                                x: that._positioningCube.position.x,
+                                y: that._positioningCube.position.y,
+                                z: that._positioningCube.position.z
+                            };
+                        }
                     }
                     else if (that._selectedTool == "sampler") {
                         that.sampleColor();
@@ -483,7 +496,11 @@
             if (that._controls.enabled) {
                 event.preventDefault();
 
-                if (that._controls.getIsLeftMouseButton(event)) that._isPainting = false;
+                if (that._controls.getIsLeftMouseButton(event)) {
+                    that._isPainting = false;
+
+                    if (that._selectedDrawStyle == "block") that.paint();
+                }
                 else if (that._controls.getIsRightMouseButton(event)) that._isErasing = false;
 
                 return false;
@@ -506,15 +523,47 @@
 
 
         this.paint = function() {
-            if (that._positioningCube.visible) {
-                var position = {
-                    x: that._positioningCube.position.x,
-                    y: that._positioningCube.position.y,
-                    z: that._positioningCube.position.z
-                };
+            var position = {
+                x: that._positioningCube.position.x,
+                y: that._positioningCube.position.y,
+                z: that._positioningCube.position.z
+            };
 
-                
-                that._marblesViewEngine.addVoxel(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
+            if (that._positioningCube.visible) {
+                if (that._selectedDrawStyle == "point") {
+                    that._marblesViewEngine.addVoxel(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
+                }
+                else  if (that._selectedDrawStyle == "block") {
+                    var distX = that._startPaintPosition.x - position.x,
+                        distY = that._startPaintPosition.y - position.y,
+                        distZ = that._startPaintPosition.z - position.z;
+
+                    var xMultiplier = 1,
+                        yMultiplier = 1,
+                        zMultiplier = 1;
+
+                    if (position.x < that._startPaintPosition.x) xMultiplier = -1;
+                    if (position.y < that._startPaintPosition.y) yMultiplier = -1;
+                    if (position.z < that._startPaintPosition.z) zMultiplier = -1;
+
+                    for (var y=0; y<=Math.abs(distY/that._voxelSize); y++) {
+                        for (var z=0; z<=Math.abs(distZ/that._voxelSize); z++) {
+                            for (var x=0; x<=Math.abs(distX/that._voxelSize); x++) {
+                                var newX = (that._startPaintPosition.x + ((x*that._voxelSize)*xMultiplier)),
+                                    newY = (that._startPaintPosition.y + ((y*that._voxelSize)*yMultiplier)),
+                                    newZ = (that._startPaintPosition.z + ((z*that._voxelSize)*zMultiplier));
+
+                                that._marblesViewEngine.addVoxel(that._selectedShape, {
+                                    x: newX,
+                                    y: newY,
+                                    z: newZ
+                                }, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);               
+                            }   
+                        }
+                    }
+                }
+
+                that._startPaintPosition = null;
             }
         };
 
@@ -658,6 +707,10 @@
                 that._yRotation = 0;
 
                 that.updatePositioningVoxelShape();
+            },
+
+            setShape: function(drawStyle) {
+                that._selectedDrawStyle = drawStyle;
             },
 
             rotateGridLeft: function() {
