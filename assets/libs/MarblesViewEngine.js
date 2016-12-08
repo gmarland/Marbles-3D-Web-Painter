@@ -299,6 +299,40 @@ THREE.MarblesViewEngine = function (scene, voxelSize) {
             return scene;
         },
 
+        getBlockVoxelPositions: function(pointA, pointB) {
+            var distX = pointA.x - pointB.x,
+                distY = pointA.y - pointB.y,
+                distZ = pointA.z - pointB.z;
+
+            var xMultiplier = 1,
+                yMultiplier = 1,
+                zMultiplier = 1;
+
+            if (pointB.x < pointA.x) xMultiplier = -1;
+            if (pointB.y < pointA.y) yMultiplier = -1;
+            if (pointB.z < pointA.z) zMultiplier = -1;
+
+            var voxelPositions = [];
+
+            for (var y=0; y<=Math.abs(distY/that._voxelSize); y++) {
+                for (var z=0; z<=Math.abs(distZ/that._voxelSize); z++) {
+                    for (var x=0; x<=Math.abs(distX/that._voxelSize); x++) {
+                        var newX = (pointA.x + ((x*that._voxelSize)*xMultiplier)),
+                            newY = (pointA.y + ((y*that._voxelSize)*yMultiplier)),
+                            newZ = (pointA.z + ((z*that._voxelSize)*zMultiplier));
+
+                        voxelPositions.push({
+                            x: newX,
+                            y: newY,
+                            z: newZ
+                        });               
+                    }   
+                }
+            }
+
+            return voxelPositions;
+        },
+
         getVoxelAtPosition: function(position) {
             var spacePosition = {
                 x: ((position.x-(that._voxelSize/2))/that._voxelSize),

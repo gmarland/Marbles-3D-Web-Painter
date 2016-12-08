@@ -54,7 +54,7 @@
         this._level = 0;
 
         this._selectedTool = "painter";
-        this._selectedDrawStyle = "block";
+        this._selectedDrawStyle = "point";
         this._selectedShape = "cube";
         this._selectedOpacity = 100;
         this._selectedColor = "#000000";
@@ -534,33 +534,11 @@
                     that._marblesViewEngine.addVoxel(that._selectedShape, position, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);
                 }
                 else  if (that._selectedDrawStyle == "block") {
-                    var distX = that._startPaintPosition.x - position.x,
-                        distY = that._startPaintPosition.y - position.y,
-                        distZ = that._startPaintPosition.z - position.z;
+                    var allVoxelPositions = that._marblesViewEngine.getBlockVoxelPositions(that._startPaintPosition, position);
 
-                    var xMultiplier = 1,
-                        yMultiplier = 1,
-                        zMultiplier = 1;
-
-                    if (position.x < that._startPaintPosition.x) xMultiplier = -1;
-                    if (position.y < that._startPaintPosition.y) yMultiplier = -1;
-                    if (position.z < that._startPaintPosition.z) zMultiplier = -1;
-
-                    for (var y=0; y<=Math.abs(distY/that._voxelSize); y++) {
-                        for (var z=0; z<=Math.abs(distZ/that._voxelSize); z++) {
-                            for (var x=0; x<=Math.abs(distX/that._voxelSize); x++) {
-                                var newX = (that._startPaintPosition.x + ((x*that._voxelSize)*xMultiplier)),
-                                    newY = (that._startPaintPosition.y + ((y*that._voxelSize)*yMultiplier)),
-                                    newZ = (that._startPaintPosition.z + ((z*that._voxelSize)*zMultiplier));
-
-                                that._marblesViewEngine.addVoxel(that._selectedShape, {
-                                    x: newX,
-                                    y: newY,
-                                    z: newZ
-                                }, that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);               
-                            }   
-                        }
-                    }
+                    for (var i=0; i<allVoxelPositions.length; i++) {
+                        that._marblesViewEngine.addVoxel(that._selectedShape, allVoxelPositions[i], that._selectedColor, that._selectedOpacity, that._xRotation, that._yRotation);               
+                    }   
                 }
 
                 that._startPaintPosition = null;
